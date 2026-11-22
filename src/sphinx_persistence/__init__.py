@@ -8,20 +8,38 @@ services.
 
 Enable it like any Sphinx extension (in Jupyter Book / TeachBooks:
 ``sphinx.extra_extensions: [sphinx_persistence]``). All options are
-optional and set as regular Sphinx config values:
+optional and set as regular Sphinx config values. Saving is on by default.
+Everything the extension adds to the page, apart from the toolbar, is off by
+default.
 
-- ``persistence_toolbar`` (bool, True): the export / import / reset buttons.
+Saving:
+
 - ``persistence_code_cells`` (bool, True): save live-code (thebe) cell source.
 - ``persistence_questions`` (bool, True): save TeachBooks-Questions answers.
 - ``persistence_activities`` (bool, True): record & replay clicks inside
   bespoke ``{raw} html`` activities.
-- ``persistence_progress_checkboxes`` (bool, True): "Mark as done" controls
-  and sidebar completion ticks. Every page gets a completion checkbox;
-  per-activity controls additionally require the
-  ``data-learning-activity="true"`` / ``.la-title`` markup convention.
+
+Header toolbar:
+
+- ``persistence_toolbar`` (bool, True): the export / import / reset buttons.
+
+Progress controls added to the page:
+
+- ``persistence_page_checkbox`` (bool, False): a "Mark this section as
+  complete" checkbox at the end of every page.
+- ``persistence_sidebar_ticks`` (bool, False): a tick in the left sidebar next
+  to every page marked complete. Needs ``persistence_page_checkbox``.
+- ``persistence_activity_checkboxes`` (bool, False): a "Mark as done" checkbox
+  after every learning activity (``data-learning-activity="true"`` with a
+  ``.la-title``, or a heading that starts with "Learning activity:").
+- ``persistence_activity_reset`` (bool, False): a "Reset" button after every
+  learning activity that clears only that activity.
 - ``persistence_part_heading_pages`` (str, ""): JS regex matched against
   ``location.pathname``; on matching pages, numbered part headings
-  ("1. ...", "3.1.2: ...", "Model 3 ...") also receive a completion checkbox.
+  ("3.1.1: ...") also receive a "Mark as done" checkbox. Empty means off.
+
+Other settings:
+
 - ``persistence_activity_exclude_ids`` (list[str], []): activity root ids the
   click recorder must skip (e.g. timed quiz games).
 - ``persistence_book_id`` (str, ""): identity stamped into progress exports so
@@ -32,7 +50,7 @@ optional and set as regular Sphinx config values:
 import json
 from pathlib import Path
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 _STATIC = Path(__file__).resolve().parent / "static"
 
@@ -41,14 +59,23 @@ _CONFIG_JS = "sphinx-persistence-config.js"
 
 # (config option, filename) in required load order: data-manager.js first (it
 # owns the shared key registry and reset utilities the others call), the click
-# recorder after it, the completion checkboxes last.
+# recorder after it, the progress controls last.
 _MODULES = (
     (None, "data-manager.js"),  # always on: the backbone of every other module
     ("persistence_toolbar", "book-exporter.js"),
     ("persistence_code_cells", "thebe-code-persistence.js"),
     ("persistence_questions", "teachbook-questions-persistence.js"),
     ("persistence_activities", "activity-persistence.js"),
-    ("persistence_progress_checkboxes", "progress-checkboxes.js"),
+)
+
+# Options that each switch on one kind of progress control. The file
+# progress-checkboxes.js loads when at least one of them is on.
+_PROGRESS_OPTIONS = (
+    "persistence_page_checkbox",
+    "persistence_sidebar_ticks",
+    "persistence_activity_checkboxes",
+    "persistence_activity_reset",
+    "persistence_part_heading_pages",
 )
 
 
@@ -63,7 +90,8 @@ def _on_builder_inited(app):
         return
     app._sbp_assets_registered = True
 
-    app.config.html_static_path.append(str(_STATIC))
+    config = app.config
+    config.html_static_path.append(str(_STATIC))
 
     # Runtime options the JS modules read at init. Emitted as a NAMED file
     # (generated into the doctree dir, served from _static/), not an inline
@@ -71,9 +99,13 @@ def _on_builder_inited(app):
     # <script> bodies in the rendered head (the reason books carry dedup
     # extensions for thebe/togglebutton), while named files register once.
     runtime = {
-        "bookId": app.config.persistence_book_id,
-        "activityExcludeIds": list(app.config.persistence_activity_exclude_ids),
-        "partHeadingPages": app.config.persistence_part_heading_pages,
+        "bookId": config.persistence_book_id,
+        "activityExcludeIds": list(config.persistence_activity_exclude_ids),
+        "pageCheckbox": bool(config.persistence_page_checkbox),
+        "sidebarTicks": bool(config.persistence_sidebar_ticks),
+        "activityCheckboxes": bool(config.persistence_activity_checkboxes),
+        "activityReset": bool(config.persistence_activity_reset),
+        "partHeadingPages": config.persistence_part_heading_pages,
     }
     generated = Path(app.doctreedir) / "sphinx_persistence_static"
     generated.mkdir(parents=True, exist_ok=True)
@@ -81,22 +113,32 @@ def _on_builder_inited(app):
         f"window.sphinxPersistence = {json.dumps(runtime)};\n",
         encoding="utf-8",
     )
-    app.config.html_static_path.append(str(generated))
+    config.html_static_path.append(str(generated))
     # Low priority so the config loads before the module files below.
     app.add_js_file(_CONFIG_JS, priority=200)
 
     for option, filename in _MODULES:
-        if option is None or getattr(app.config, option):
+        if option is None or getattr(config, option):
             app.add_js_file(filename)
+
+    if any(getattr(config, option) for option in _PROGRESS_OPTIONS):
+        app.add_js_file("progress-checkboxes.js")
 
 
 def setup(app):
-    app.add_config_value("persistence_toolbar", True, "html")
+    # Saving (on by default).
     app.add_config_value("persistence_code_cells", True, "html")
     app.add_config_value("persistence_questions", True, "html")
     app.add_config_value("persistence_activities", True, "html")
-    app.add_config_value("persistence_progress_checkboxes", True, "html")
+    # Header toolbar (on by default).
+    app.add_config_value("persistence_toolbar", True, "html")
+    # Progress controls added to the page (off by default).
+    app.add_config_value("persistence_page_checkbox", False, "html")
+    app.add_config_value("persistence_sidebar_ticks", False, "html")
+    app.add_config_value("persistence_activity_checkboxes", False, "html")
+    app.add_config_value("persistence_activity_reset", False, "html")
     app.add_config_value("persistence_part_heading_pages", "", "html")
+    # Other settings.
     app.add_config_value("persistence_activity_exclude_ids", [], "html")
     app.add_config_value("persistence_book_id", "", "html")
 

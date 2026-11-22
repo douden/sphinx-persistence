@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0
+
+Each progress control now has its own setting, and all of them are off by default. Saving and the Export, Import and Reset buttons stay on by default.
+
+- The single setting `persistence_progress_checkboxes` is replaced by four settings: `persistence_page_checkbox`, `persistence_sidebar_ticks`, `persistence_activity_checkboxes` and `persistence_activity_reset`. A book that used the old setting must set the new ones to keep its controls.
+- The Reset button of an activity can now be shown without the "Mark as done" checkbox.
+- Reset clears inputs without an id, such as sliders, and no longer saves its own clicks.
+- The Copy button on code blocks no longer causes an error.
+- Export first saves input that was still waiting to be saved.
+- Live code cells that a reader adds are not saved.
+- The question that Reset asks is clearer.
+
 ## 0.1.0
 
 First release.

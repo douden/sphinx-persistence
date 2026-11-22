@@ -3,10 +3,17 @@
  * -------------------
  * Lets students self-report what they have finished, and remembers it.
  *
- * It injects two kinds of checkbox into every content page:
- *   1. A "Done" checkbox below each explicitly classified Learning Activity.
- *   2. A "Mark this section as complete" checkbox at the foot of the page, for the
- *      read-and-move-on concept pages.
+ * It can add these controls to a content page. Each has its own switch in the
+ * book's config, and all of them are off unless the book turns them on:
+ *   1. A "Mark this section as complete" checkbox at the foot of the page
+ *      (persistence_page_checkbox).
+ *   2. A tick in the left sidebar for every completed page
+ *      (persistence_sidebar_ticks).
+ *   3. A "Mark as done" checkbox below each explicitly classified Learning
+ *      Activity (persistence_activity_checkboxes).
+ *   4. A "Reset" button below each Learning Activity (persistence_activity_reset).
+ *   5. A "Mark as done" checkbox after numbered part headings on chosen pages
+ *      (persistence_part_heading_pages).
  *
  * These are ordinary <input type="checkbox"> elements with a STABLE, deterministic
  * id, so the existing DataManager (data-manager.js) picks them up automatically and
@@ -25,6 +32,16 @@
     var PAGE_READ_ID = 'progress-page-read';   // id of the per-page checkbox
     var ACTIVITY_PREFIX = 'progress-act-';     // id prefix for per-activity checkboxes
     var PART_PREFIX = 'progress-part-';        // id prefix for per-part checkboxes (ch3/ch4)
+
+    /**
+     * Read one on/off switch from the build-time config (window.sphinxPersistence,
+     * written by the Python side). Each kind of progress control has its own
+     * switch, and all of them are off unless the book turns them on.
+     */
+    function option(name) {
+        var cfg = window.sphinxPersistence || {};
+        return cfg[name] === true;
+    }
 
     /**
      * Turn an activity title into a short, URL-safe, stable slug. The slug is part
@@ -140,7 +157,10 @@
         btn.setAttribute('aria-label', 'Reset this activity');
         btn.title = 'Clear your saved answers for this activity and start over';
         btn.addEventListener('click', function () {
-            if (!window.confirm('Clear your saved answers for this activity? Your "Mark as done" tick is kept.')) return;
+            var question = option('activityCheckboxes')
+                ? 'Clear your saved answers for this activity? Your "Mark as done" tick is kept.'
+                : 'Clear your saved answers for this activity?';
+            if (!window.confirm(question)) return;
             var base = STORAGE_PREFIX + window.location.pathname;
             var dm = window.dataManager;
             // Stop pending saves so none writes a value back after the clear.
@@ -172,11 +192,11 @@
      * checkbox.
      */
     function withReset(titleEl, control) {
-        var card = activityCard(titleEl);
+        var card = option('activityReset') ? activityCard(titleEl) : null;
         if (!card) return control;
         var bar = document.createElement('div');
         bar.className = 'progress-actions';
-        bar.appendChild(control);
+        if (control) bar.appendChild(control);
         bar.appendChild(makeResetButton(card));
         return bar;
     }
@@ -203,9 +223,15 @@
             usedSlugs[slug] = (usedSlugs[slug] || 0) + 1;
             if (usedSlugs[slug] > 1) slug += '-' + usedSlugs[slug];
 
+            // With "Mark as done" off, the activity may still get a Reset
+            // button on its own; withReset returns null when it gets neither.
+            var control = option('activityCheckboxes')
+                ? makeControl(ACTIVITY_PREFIX + slug, 'Mark as done', 'activity')
+                : null;
+            var actions = withReset(el, control);
+            if (!actions) return;
             el.dataset.progressAttached = '1';
-            var control = makeControl(ACTIVITY_PREFIX + slug, 'Mark as done', 'activity');
-            placeControlAtEnd(el, withReset(el, control));
+            placeControlAtEnd(el, actions);
         }
 
         document.querySelectorAll(
@@ -299,6 +325,7 @@
      * link we cannot resolve is simply skipped.
      */
     function refreshSidebarTicks() {
+        if (!option('sidebarTicks')) return;
         var links = document.querySelectorAll('.bd-sidebar-primary a.reference.internal, nav.bd-links a');
         links.forEach(function (a) {
             var href = a.getAttribute('href');
@@ -358,9 +385,9 @@
 
     function init() {
         injectStyles();
-        attachActivityCheckboxes();
+        if (option('activityCheckboxes') || option('activityReset')) attachActivityCheckboxes();
         attachPartCheckboxes();
-        attachPageCheckbox();
+        if (option('pageCheckbox')) attachPageCheckbox();
         // The sidebar map reads localStorage, which DataManager may still be
         // restoring on load; run once now and once after load to catch late writes.
         refreshSidebarTicks();

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sphinx-persistence"
-version = "0.1.0"
+version = "0.2.0"
 description = "Client-side persistence for interactive Sphinx sites: auto-save form answers, quiz selections and live-code cells to localStorage, with an export / import / reset toolbar."
 readme = "README.md"
 license = { text = "MIT" }

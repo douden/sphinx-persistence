@@ -26,9 +26,9 @@ You need to add two lines and then rebuild your book.
 
 For a plain Sphinx project without Jupyter Book, add `"sphinx_persistence"` to the `extensions` list in `conf.py` instead.
 
-The extension is not on PyPI yet. The line above installs the latest version from GitHub each time your book is built. To keep one version, add a commit id to the end of the line, for example `@f2de164` for version 0.3.0.
+The extension is not on PyPI yet. The line above installs the latest version from GitHub each time your book is built. To keep one version, add a commit id to the end of the line, for example `@f2de164`.
 
-With no further settings, the extension saves the reader's work and adds the Export, Import and Reset buttons to the page header. It adds nothing else to your pages. You can turn on the progress controls (checkboxes, ticks and clickable circles in the sidebar, and Reset buttons per activity) one by one, as [Settings](#settings) explains.
+With no further settings, the extension saves the reader's work and adds a menu with Export, Import and Reset to the page header. It adds nothing else to your pages. You can turn on the progress controls (checkboxes, ticks and clickable circles in the sidebar, and Reset buttons per activity) one by one, as [Settings](#settings) explains.
 
 ## Saving the reader's work
 
@@ -72,11 +72,7 @@ Turn it off with `persistence_activities: false`. To skip single activities, suc
 
 ## Export, Import and Reset
 
-The extension adds three actions to the page header, and they are on by default. Without further settings, they show as three icon buttons: Export (a file with an arrow out), Import (a file with an arrow in) and Reset (a bin).
-
-![Export, Import and Reset buttons in the page header](docs/toolbar.png)
-
-With `persistence_toolbar_menu: true`, the three actions sit in one menu behind a single disk icon in the page header. Each action has its name in the menu. This keeps the header short, and readers can see what each action does.
+The extension adds a disk icon to the page header, and it is on by default. The icon opens a menu with three actions: Export (a file with an arrow out), Import (a file with an arrow in) and Reset (a bin). Each action has its name in the menu, so readers can see what it does, and the header stays short.
 
 ![The menu with Export, Import and Reset](docs/toolbar-menu.png)
 
@@ -88,7 +84,7 @@ Import checks the file first. If the file comes from a different book, the reade
 
 Reset lets a reader start over. It asks whether to clear only the current page ("Current Page Only") or the whole book ("Entire Book"). Then it deletes the saved work and reloads the page in its original state. It leaves other data of the website alone, with two exceptions on a shared web address that [Several books on one web address](#several-books-on-one-web-address) describes.
 
-Turn all three actions off with `persistence_toolbar: false`.
+Turn the menu off with `persistence_toolbar: false`.
 
 ## Progress controls
 
@@ -150,20 +146,19 @@ Pages do not mix, because the extension saves each page under its own path. A bo
 
 ### Theme
 
-The extension is built for books that use the TeachBooks or sphinx-book-theme page layout. Export, Import and Reset go into that theme's page header. With another theme, they float in the bottom-right corner of the page, and the progress controls do not appear.
+The extension is built for books that use the TeachBooks or sphinx-book-theme page layout. The menu with Export, Import and Reset goes into that theme's page header. With another theme, the disk icon floats in the bottom-right corner of the page, and the progress controls do not appear.
 
 ## Settings
 
 All settings are optional. In a Jupyter Book or TeachBooks book, put them in `_config.yml` under `sphinx:` and then `config:`, next to your other Sphinx settings. In a plain Sphinx project, put them in `conf.py`. Rebuild the book after you change a setting.
 
-This example puts Export, Import and Reset in one menu and turns on all progress controls:
+This example turns on all progress controls:
 
 ```yaml
 sphinx:
   extra_extensions:
     - sphinx_persistence
   config:
-    persistence_toolbar_menu: true
     persistence_page_checkbox: true
     persistence_sidebar_ticks: true
     persistence_sidebar_clickable: true
@@ -179,8 +174,7 @@ The table lists every setting in the order of this README.
 | `persistence_questions` | `true` | Saves TeachBooks-Questions answers. |
 | `persistence_activities` | `true` | Saves custom HTML activities. |
 | `persistence_activity_exclude_ids` | `[]` | Lists the ids of HTML activities that should never be saved, such as timed games. |
-| `persistence_toolbar` | `true` | Shows the Export, Import and Reset buttons in the page header. |
-| `persistence_toolbar_menu` | `false` | Puts Export, Import and Reset in one menu behind a single button in the page header. |
+| `persistence_toolbar` | `true` | Shows a menu with Export, Import and Reset behind a disk icon in the page header. |
 | `persistence_page_checkbox` | `false` | Adds a "Mark this section as complete" checkbox at the end of every page. |
 | `persistence_sidebar_ticks` | `false` | Shows a tick in the sidebar next to completed pages. Needs `persistence_page_checkbox` or `persistence_sidebar_clickable`. |
 | `persistence_sidebar_clickable` | `false` | Adds a circle next to every page in the sidebar. The reader clicks it to mark the page as done. |

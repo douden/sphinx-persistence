@@ -21,9 +21,8 @@ Saving:
 
 Header toolbar:
 
-- ``persistence_toolbar`` (bool, True): the export / import / reset buttons.
-- ``persistence_toolbar_menu`` (bool, False): show the three actions in one
-  menu behind a single header button.
+- ``persistence_toolbar`` (bool, True): a menu in the page header, behind a
+  disk icon, with Export, Import and Reset.
 
 Progress controls added to the page:
 
@@ -54,7 +53,7 @@ Other settings:
 import json
 from pathlib import Path
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 _STATIC = Path(__file__).resolve().parent / "static"
 
@@ -106,7 +105,6 @@ def _on_builder_inited(app):
     runtime = {
         "bookId": config.persistence_book_id,
         "activityExcludeIds": list(config.persistence_activity_exclude_ids),
-        "toolbarMenu": bool(config.persistence_toolbar_menu),
         "pageCheckbox": bool(config.persistence_page_checkbox),
         "sidebarTicks": bool(config.persistence_sidebar_ticks),
         "sidebarClickable": bool(config.persistence_sidebar_clickable),
@@ -139,7 +137,6 @@ def setup(app):
     app.add_config_value("persistence_activities", True, "html")
     # Header toolbar (on by default).
     app.add_config_value("persistence_toolbar", True, "html")
-    app.add_config_value("persistence_toolbar_menu", False, "html")
     # Progress controls added to the page (off by default).
     app.add_config_value("persistence_page_checkbox", False, "html")
     app.add_config_value("persistence_sidebar_ticks", False, "html")

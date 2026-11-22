@@ -28,7 +28,6 @@ jobs:
           cat > demo/conf.py <<'EOF'
           project = "demo"
           extensions = ["sphinx_persistence"]
-          persistence_toolbar_menu = True
           persistence_page_checkbox = True
           persistence_sidebar_clickable = True
           persistence_sidebar_ticks = True

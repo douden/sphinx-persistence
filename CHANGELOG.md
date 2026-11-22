@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+- Export, Import and Reset always sit in one menu behind a disk icon in the page header. The three separate header buttons and the setting `persistence_toolbar_menu` are gone. A book that still sets `persistence_toolbar_menu` gets a harmless warning from Sphinx and can remove the line.
+
 ## 0.3.0
 
 - New setting `persistence_toolbar_menu`: Export, Import and Reset in one menu behind a single header button (issue #3).

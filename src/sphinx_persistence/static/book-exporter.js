@@ -1,9 +1,8 @@
 /**
  * Export, Import and Reset
- * Adds three actions to the page header: Export downloads all saved work as
- * one JSON file, Import loads such a file back in, and Reset clears saved work
- * for the current page or the whole book. They show as three icon buttons, or,
- * with persistence_toolbar_menu, as one menu behind a single header button.
+ * Adds a menu to the page header, behind a disk icon, with three actions:
+ * Export downloads all saved work as one JSON file, Import loads such a file
+ * back in, and Reset clears saved work for the current page or the whole book.
  */
 
 class BookProgressManager {
@@ -26,10 +25,11 @@ class BookProgressManager {
             return;
         }
 
-        // Build the three actions as monochrome, theme-native icon buttons. They
-        // dock into the article header's button bar (next to Live Code / GitHub /
-        // download), so they inherit the theme's button styling and never cover
-        // page content. The icons inherit the theme text colour, no bright fills.
+        // One header button (a disk icon) opens a menu with the three actions,
+        // each with its name, so the header stays short and readers can see what
+        // each action does. The menu docks into the article header's button bar
+        // (next to Live Code / GitHub / download) and uses the theme's own
+        // dropdown styling, so it never covers page content.
         const group = document.createElement('div');
         group.id = 'progress-buttons';
         group.className = 'progress-buttons';
@@ -41,43 +41,17 @@ class BookProgressManager {
         fileInput.id = 'import-file-input';
         fileInput.addEventListener('change', (e) => this.importProgress(e));
 
-        const exportButton = this.makeIconButton(
-            'export-progress-btn', 'fa-file-export', 'Export your progress to a file',
-            () => this.exportProgress());
-        const importButton = this.makeIconButton(
-            'import-progress-btn', 'fa-file-import', 'Import progress from a file',
-            () => fileInput.click());
-        const resetButton = this.makeIconButton(
-            'data-reset-btn', 'fa-trash-can', 'Reset your saved progress',
-            () => this.showResetDialog());
-
-        const cfg = window.sphinxPersistence || {};
-        if (cfg.toolbarMenu === true) {
-            // One header button that opens a menu with the three actions, each
-            // with a text label, so the header stays short and readers can see
-            // what each action does.
-            this.injectStyles();
-            this.dockButtons(this.makeMenu(group, [
-                ['export-progress-btn', 'fa-file-export', 'Export progress', () => this.exportProgress()],
-                ['import-progress-btn', 'fa-file-import', 'Import progress', () => fileInput.click()],
-                ['data-reset-btn', 'fa-trash-can', 'Reset progress', () => this.showResetDialog()],
-            ], fileInput));
-            return;
-        }
-
-        group.appendChild(exportButton);
-        group.appendChild(importButton);
-        group.appendChild(resetButton);
-        group.appendChild(fileInput);
-
         this.injectStyles();
-        this.dockButtons(group);
+        this.dockButtons(this.makeMenu(group, [
+            ['export-progress-btn', 'fa-file-export', 'Export progress', () => this.exportProgress()],
+            ['import-progress-btn', 'fa-file-import', 'Import progress', () => fileInput.click()],
+            ['data-reset-btn', 'fa-trash-can', 'Reset progress', () => this.showResetDialog()],
+        ], fileInput));
         this.initTooltips(group);
     }
 
     /**
-     * The menu form of the toolbar: one icon button that opens a list of the
-     * actions. It uses the same markup as the theme's own download menu, so it
+     * The toolbar menu: one icon button that opens a list of the actions. It uses the same markup as the theme's own download menu, so it
      * looks the same, and opens and closes on click without Bootstrap.
      */
     makeMenu(group, items, fileInput) {
@@ -90,6 +64,8 @@ class BookProgressManager {
         toggle.setAttribute('aria-haspopup', 'true');
         toggle.setAttribute('aria-expanded', 'false');
         toggle.title = 'Your saved progress';
+        toggle.setAttribute('data-bs-toggle', 'tooltip');
+        toggle.setAttribute('data-bs-placement', 'bottom');
         toggle.innerHTML = '<span class="btn__icon-container"><i class="fa-solid fa-floppy-disk"></i></span>';
 
         const list = document.createElement('ul');
@@ -124,21 +100,6 @@ class BookProgressManager {
         group.appendChild(list);
         group.appendChild(fileInput);
         return group;
-    }
-
-    /** A theme-styled icon-only button (monochrome, inherits header button look). */
-    makeIconButton(id, iconClass, label, onClick) {
-        const button = document.createElement('button');
-        button.id = id;
-        button.type = 'button';
-        button.className = 'btn btn-sm progress-buttons__btn';
-        button.setAttribute('aria-label', label);
-        button.title = label;
-        button.setAttribute('data-bs-toggle', 'tooltip');
-        button.setAttribute('data-bs-placement', 'bottom');
-        button.innerHTML = `<span class="btn__icon-container"><i class="fa-solid ${iconClass}"></i></span>`;
-        button.addEventListener('click', onClick);
-        return button;
     }
 
     /**

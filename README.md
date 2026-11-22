@@ -4,7 +4,9 @@ This extension saves your readers' work in a Jupyter Book, TeachBooks or Sphinx 
 
 Without it, everything a reader does in an interactive book is lost when they refresh or close the page. This includes quiz answers, code they edited and exercises they filled in. With this extension, all of it comes back when the reader returns, even days later. The extension stores everything in the reader's own browser. There is no server and no account, and no data leaves the reader's computer.
 
-## Install
+You can try every feature in the [example book](https://omarkammouh.github.io/sphinx-persistence-example/). Its source is in the [sphinx-persistence-example](https://github.com/omarkammouh/sphinx-persistence-example) repository.
+
+## Installation
 
 You need to add two lines and then rebuild your book.
 
@@ -24,17 +26,25 @@ You need to add two lines and then rebuild your book.
 
 For a plain Sphinx project without Jupyter Book, add `"sphinx_persistence"` to the `extensions` list in `conf.py` instead.
 
+The extension is not on PyPI yet. The line above installs the latest version from GitHub each time your book is built. To keep one version, add a commit id to the end of the line, for example `@154e65a`.
+
 With no further settings, the extension saves the reader's work and adds the Export, Import and Reset buttons to the page header. It adds nothing else to your pages. You can turn on the progress controls (checkboxes, sidebar ticks and Reset buttons per activity) one by one, as [Settings](#settings) explains.
 
 ## Saving the reader's work
 
-The extension saves the four kinds of work below. Saving is on by default.
+The extension saves the four kinds of work below, and saving is on by default.
 
 ### Form fields
 
 The extension saves anything a reader types or selects in text boxes, text areas, checkboxes, radio buttons, dropdowns and sliders. It saves in the background a moment after each change, and once more when the reader leaves the page. So nothing is lost when a reader closes the tab in the middle of a sentence. When the reader comes back, every field is filled in as they left it. The extension also picks up fields that a script adds after the page has loaded.
 
-This part is always on, because the other parts build on it.
+This part is always on, because the other parts build on it. To keep one field out of saving, such as a search box, put `data-persistence="off"` on the field or on an element around it:
+
+```html
+<div data-persistence="off">
+  <input type="text" placeholder="This field is not saved">
+</div>
+```
 
 ### Live code cells
 
@@ -56,19 +66,23 @@ Turn it off with `persistence_questions: false`.
 
 Many books contain small exercises written directly in HTML, such as sorting, matching and click-to-classify exercises. Normally another script cannot save these, because each activity keeps its state in its own code. This extension records the clicks a reader makes inside such an activity. When the reader reloads the page, the extension replays those clicks, and the activity rebuilds itself step by step. If the reader had pressed Check, the graded result comes back as well. You do not need to change the activities themselves.
 
+An activity must sit inside an HTML element with an id, for example `<div id="sorting-exercise">`. The extension uses that id to know which activity a click belongs to. Clicks in an activity without such an id are not saved. Give every activity its own id, and keep the id the same in later versions of your book. If the id changes, readers lose their saved work in that activity.
+
 Turn it off with `persistence_activities: false`. To skip single activities, such as timed games, list their ids in `persistence_activity_exclude_ids`.
 
 ## Export, Import and Reset buttons
 
-The extension adds three buttons to the page header. They are on by default.
+The extension adds three buttons to the page header, and they are on by default.
 
 ![Export, Import and Reset buttons in the page toolbar](docs/toolbar.png)
 
 Saved work lives in one browser on one computer. Export and Import move it between computers. Export downloads one file with all saved work in the whole book, and Import loads such a file back in. A student can work in the university library, export the file and continue at home. The file also works as a backup in case the browser clears its storage.
 
+The export file is a JSON file. It holds a format version (`schemaVersion`, now 2), the book id, the page title, the export date and the saved items. The book id comes from `persistence_book_id`. When that setting is empty, the extension reads a `<meta name="book-id">` tag, and otherwise it uses the website address.
+
 Import checks the file first. If the file comes from a different book, the reader sees a warning before anything changes. Code edits that no longer match the current version of the book are skipped.
 
-The Reset button lets a reader start over. It asks whether to clear only the current page or the whole book. Then it deletes the saved work and reloads the page in its original state. It only deletes what this extension saved.
+The Reset button lets a reader start over. It asks whether to clear only the current page or the whole book. Then it deletes the saved work and reloads the page in its original state. It leaves other data of the website alone, with two exceptions on a shared web address that [Several books on one web address](#several-books-on-one-web-address) describes.
 
 Turn all three buttons off with `persistence_toolbar: false`.
 
@@ -78,7 +92,7 @@ The extension can also add controls that help readers track how far they are. Th
 
 ### Checkbox at the end of each page
 
-With `persistence_page_checkbox: true`, every page ends with a "Mark this section as complete" checkbox that the reader can tick when they are done with the page.
+With `persistence_page_checkbox: true`, every page ends with a "Mark this section as complete" checkbox. The reader ticks it when they are done with the page.
 
 ![Mark this section as complete checkbox](docs/mark-complete.png)
 
@@ -100,12 +114,33 @@ With `persistence_activity_reset: true`, every learning activity that is written
 
 Some pages are long walkthroughs with numbered parts, such as "3.1.1: Setting up the model". You can give each numbered part its own "Mark as done" checkbox. Set `persistence_part_heading_pages` to a pattern that matches the web addresses of those pages, for example `"chapter_3|chapter_4"`. The pattern is a JavaScript regular expression. When the setting is empty, which is the default, no page gets these checkboxes.
 
-## What does not get saved
+## Limitations
+
+### What does not get saved
 
 - The output of code cells is not saved. Only the code is saved, and running it again brings the output back.
 - Anything inside an iframe from another website, such as YouTube or H5P, is not saved. Browsers do not let a page look inside those.
 - Canvas animations and games are not saved. They start again on purpose.
 - The extension does not remember which tab of a tab set was open.
+
+### Several books on one web address
+
+A browser keeps saved work per web address, such as `https://oit.tudelft.nl`. When several books are hosted under the same address, they share one storage space, and the extension cannot yet tell them apart. This has three effects:
+
+- Export puts the saved work of all books on that address into one file.
+- "Reset book" deletes the saved work of all books on that address. It also deletes saved H5P answers on that address.
+- All books on the address share the browser's limit of about 5 MB.
+
+Pages do not mix, because the extension saves each page under its own path. A book that has its own web address, such as a GitHub Pages site, is not affected. A fix that keeps each book's saved work apart is planned.
+
+### Changes to your book
+
+- A saved code edit belongs to the cell's position on the page. If you add or remove a code cell above it, the extension skips the old edit, so the reader does not see it in the wrong cell, but the edit is lost.
+- A saved quiz answer, activity or checkbox belongs to the page path and its own id or title. If you rename a page, an activity id or an activity title, readers lose what they saved there.
+
+### Theme
+
+The extension is built for books that use the TeachBooks or sphinx-book-theme page layout. The Export, Import and Reset buttons go into that theme's page header. With another theme, the buttons float in the bottom-right corner of the page, and the progress controls do not appear.
 
 ## Settings
 
@@ -144,9 +179,10 @@ The table lists every setting in the order of this README.
 
 - The extension saves work per browser and per computer. To move it to another computer, use Export on the first computer and Import on the second.
 - Browsers give a website about 5 MB of storage. If a reader fills it, they get a warning, so no work is lost without notice.
-- Reset deletes only what this extension saved. It does not touch other data of the website.
 
-## Development
+## Contribute
+
+Found a problem or have an idea? Open an [issue](https://github.com/omarkammouh/sphinx-persistence/issues), or fork the repository and open a pull request. Please describe what you did, what you expected and what happened, and name your browser.
 
 The JavaScript files are in `src/sphinx_persistence/static/`. Sphinx serves the installed copy of the package. So after you edit a file, reinstall the package from your checkout before you rebuild the book you test with:
 
@@ -154,6 +190,8 @@ The JavaScript files are in `src/sphinx_persistence/static/`. Sphinx serves the 
 pip install --force-reinstall --no-deps /path/to/sphinx-persistence
 ```
 
-## License
+The [example book](https://github.com/omarkammouh/sphinx-persistence-example) is a good place to test a change, because it uses every feature on a small number of pages.
 
-MIT
+## Licence
+
+The extension is licensed under the [MIT licence](LICENSE).

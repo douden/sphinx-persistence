@@ -52,7 +52,7 @@
   var UI_EXCLUDE = '.article-header-buttons, #progress-buttons, .reset-dialog, ' +
     '.progress-actions, .progress-check, .progress-reset, ' +
     '.bd-sidebar, .bd-sidebar-primary, .bd-sidebar-secondary, nav, header, ' +
-    '.prev-next-area, .bd-header-article';
+    '.prev-next-area, .bd-header-article, [data-persistence="off"]';
 
   // Framework components OTHER scripts already own, or that are deliberately not
   // persisted, replaying clicks into these would fight the owning system:

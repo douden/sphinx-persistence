@@ -6,6 +6,8 @@ Each progress control now has its own setting, and all of them are off by defaul
 
 - The single setting `persistence_progress_checkboxes` is replaced by four settings: `persistence_page_checkbox`, `persistence_sidebar_ticks`, `persistence_activity_checkboxes` and `persistence_activity_reset`. A book that used the old setting must set the new ones to keep its controls.
 - The Reset button of an activity can now be shown without the "Mark as done" checkbox.
+- An author can keep a field or an activity out of saving with `data-persistence="off"` on it or on an element around it.
+- The README has a Limitations section and links to the new example book.
 - Reset clears inputs without an id, such as sliders, and no longer saves its own clicks.
 - The Copy button on code blocks no longer causes an error.
 - Export first saves input that was still waiting to be saved.

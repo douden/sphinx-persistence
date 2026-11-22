@@ -168,7 +168,9 @@ class DataManager {
      * deliberately transient (see README, "Not persisted").
      */
     isUiChromeInput(element) {
-        return !!element.closest('.sd-tab-set');
+        // An author can keep any field out of saving by putting
+        // data-persistence="off" on the field or on an element around it.
+        return !!element.closest('.sd-tab-set, [data-persistence="off"]');
     }
 
     /**

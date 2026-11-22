@@ -47,7 +47,10 @@
   var EXCLUDE_IDS = CONFIG.activityExcludeIds || [];
 
   // Non-content regions whose clicks must never be recorded/replayed.
+  // .progress-actions holds the "Mark as done" tick and the per-activity Reset
+  // button; a click there is not a move in the activity and must not be saved.
   var UI_EXCLUDE = '.article-header-buttons, #progress-buttons, .reset-dialog, ' +
+    '.progress-actions, .progress-check, .progress-reset, ' +
     '.bd-sidebar, .bd-sidebar-primary, .bd-sidebar-secondary, nav, header, ' +
     '.prev-next-area, .bd-header-article';
 

@@ -7,8 +7,9 @@
 class DataManager {
     constructor() {
         this.storagePrefix = 'abm_book_';
-        this.saveDelay = 500; // 500ms delay for auto-save
+        this.saveDelay = 500; // 500ms delay for auto-save of typed and slider input
         this.saveTimeouts = new Map();
+        this.pendingValues = new Map(); // storageKey -> value waiting for its delayed save
 
         // While a reset is in progress, the autosave listeners must not run.
         // clearCurrentPageForms() dispatches synthetic input/change events to
@@ -29,6 +30,13 @@ class DataManager {
 
     init() {
         console.log('DataManager initializing...');
+        // Write pending delayed saves before the page goes away.
+        const flush = () => this.flushPendingSaves();
+        window.addEventListener('pagehide', flush);
+        window.addEventListener('beforeunload', flush);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') flush();
+        });
         // Wait for DOM to be fully loaded
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
@@ -59,14 +67,18 @@ class DataManager {
      * Generate a unique ID for elements without one
      */
     generateElementId(element) {
+        // Count the element among inputs of the same tag and type inside its
+        // nearest ancestor that has an id (the activity or section), not among
+        // its siblings only. A sibling count gave every lone slider in a page
+        // the same key (`input_range_0`), so two activities overwrote each
+        // other's saved value.
         const tagName = element.tagName.toLowerCase();
-        const parent = element.parentElement;
-        const siblings = Array.from(parent.children).filter(child => 
-            child.tagName.toLowerCase() === tagName && 
-            child.type === element.type
-        );
-        const index = siblings.indexOf(element);
-        return `${tagName}_${element.type || 'text'}_${index}`;
+        const type = element.type || 'text';
+        const scope = element.parentElement ? element.parentElement.closest('[id]') : null;
+        const root = scope || document.body;
+        const same = Array.from(root.querySelectorAll(tagName)).filter(el => (el.type || 'text') === type);
+        const index = same.indexOf(element);
+        return `${scope ? scope.id + '__' : ''}${tagName}_${type}_${index}`;
     }
 
     /**
@@ -163,6 +175,10 @@ class DataManager {
      * Setup persistence for a specific element
      */
     setupElementPersistence(element) {
+        // Skip inputs that are already gone from the page, such as the hidden
+        // textarea a "Copy" button adds and removes at once: it has no parent,
+        // so it cannot be keyed and holds no reader work.
+        if (!element.isConnected || !element.parentElement) return;
         if (this.isUiChromeInput(element)) return;
 
         const storageKey = this.getStorageKey(element);
@@ -236,14 +252,28 @@ class DataManager {
             // Clear existing timeout
             if (this.saveTimeouts.has(storageKey)) {
                 clearTimeout(this.saveTimeouts.get(storageKey));
+                this.saveTimeouts.delete(storageKey);
             }
-            
-            // Set new timeout for delayed save
+
+            // A checkbox or radio change is one discrete action, so save it at
+            // once. A delayed save lost a tick when the reader reloaded or
+            // exported within the delay.
+            if (element.type === 'checkbox' || element.type === 'radio') {
+                this.pendingValues.delete(storageKey);
+                this.saveToStorage(storageKey, value);
+                return;
+            }
+
+            // Typing and sliders fire many events: save after a short pause.
+            // flushPendingSaves() writes any pending value before the page
+            // unloads or the progress is exported.
+            this.pendingValues.set(storageKey, value);
             const timeoutId = setTimeout(() => {
                 this.saveToStorage(storageKey, value);
                 this.saveTimeouts.delete(storageKey);
+                this.pendingValues.delete(storageKey);
             }, this.saveDelay);
-            
+
             this.saveTimeouts.set(storageKey, timeoutId);
         };
 
@@ -295,6 +325,19 @@ class DataManager {
     cancelPendingSaves() {
         this.saveTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
         this.saveTimeouts.clear();
+        this.pendingValues.clear();
+    }
+
+    /**
+     * Write every pending delayed save now. Runs when the page is hidden or
+     * unloads, and before an export, so recent input is never lost.
+     */
+    flushPendingSaves() {
+        if (this.suppressAutoSave) return;
+        this.saveTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+        this.saveTimeouts.clear();
+        this.pendingValues.forEach((value, key) => this.saveToStorage(key, value));
+        this.pendingValues.clear();
     }
 
     /**

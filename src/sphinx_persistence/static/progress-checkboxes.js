@@ -142,9 +142,15 @@
         btn.addEventListener('click', function () {
             if (!window.confirm('Reset this activity? Your saved progress for it will be cleared.')) return;
             var base = STORAGE_PREFIX + window.location.pathname;
+            var dm = window.dataManager;
+            // Stop pending saves so none writes a value back after the clear.
+            try { if (dm) { dm.suppressAutoSave = true; if (dm.cancelPendingSaves) dm.cancelPendingSaves(); } } catch (e) {}
             try { localStorage.removeItem(base + '__activity__' + card.id); } catch (e) {}
             try {
                 card.querySelectorAll('input, textarea, select').forEach(function (inp) {
+                    // Use DataManager's own key so inputs without an id (sliders,
+                    // checkboxes) are cleared too, not only those with an id.
+                    if (dm && dm.getStorageKey) { localStorage.removeItem(dm.getStorageKey(inp)); return; }
                     if (inp.type === 'radio' && inp.name) localStorage.removeItem(base + '__radio__' + inp.name);
                     else if (inp.id) localStorage.removeItem(base + '_' + inp.id);
                 });

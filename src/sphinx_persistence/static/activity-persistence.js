@@ -26,8 +26,9 @@
  *    , data-manager.js owns those), navigation links, the persistence toolbar,
  *     and any widget whose root contains a <canvas> (live simulations/games,
  *     whose run-state is ephemeral and not meaningful to persist).
- *   - The `persistence_activity_exclude_ids` Sphinx option is the single knob
- *     to skip specific widgets by root id.
+ *   - The `persistence_activity_exclude_ids` Sphinx option skips specific
+ *     widgets by root id; `data-persistence="off"` on an element skips the
+ *     clicks inside it. Both apply to recording and to replay.
  *
  * Storage: one key per widget, `abm_book_<pathname>__activity__<rootId>`, holding
  * the ordered click sequence. The `abm_book_` prefix means the existing
@@ -255,6 +256,11 @@
     rootIds.forEach(function (rootId) {
       var root = document.getElementById(rootId);
       if (!root) return;                       // widget not on this build anymore
+      // Excluded widgets and areas marked data-persistence="off" are never
+      // replayed, even when an older build saved clicks for them. Otherwise a
+      // deck of flip cards that the reader once turned over would open turned
+      // over on every visit.
+      if (EXCLUDE_IDS.indexOf(rootId) >= 0 || root.closest('[data-persistence="off"]')) return;
       var seq = loadSeq(rootId);
       if (!seq || !seq.length) return;
       sequences.set(rootId, seq.slice());      // so later real clicks append to it
@@ -262,6 +268,7 @@
       try {
         seq.forEach(function (loc) {
           var el = resolve(loc, root);
+          if (el && el.closest('[data-persistence="off"]')) return;
           if (el) el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         });
       } catch (err) {

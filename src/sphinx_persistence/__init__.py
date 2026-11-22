@@ -52,7 +52,7 @@ Other settings:
 import json
 from pathlib import Path
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 
 _STATIC = Path(__file__).resolve().parent / "static"
 

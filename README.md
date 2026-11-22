@@ -68,7 +68,7 @@ Many books contain small exercises written directly in HTML, such as sorting, ma
 
 An activity must sit inside an HTML element with an id, for example `<div id="sorting-exercise">`. The extension uses that id to know which activity a click belongs to. Clicks in an activity without such an id are not saved. Give every activity its own id, and keep the id the same in later versions of your book. If the id changes, readers lose their saved work in that activity.
 
-Turn it off with `persistence_activities: false`. To skip single activities, such as timed games, list their ids in `persistence_activity_exclude_ids`.
+Turn it off with `persistence_activities: false`. To skip single activities, such as timed games, list their ids in `persistence_activity_exclude_ids`. To skip part of a page, such as a deck of flip cards that should always open face up, put `data-persistence="off"` on an element around it. Both settings also stop clicks that an older version of the book saved from being replayed.
 
 ## Export, Import and Reset
 

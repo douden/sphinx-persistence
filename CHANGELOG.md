@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2
+
+- Clicks are no longer replayed into an area marked `data-persistence="off"` or into an activity listed in `persistence_activity_exclude_ids`. Before, only the recording of new clicks was skipped, so clicks saved earlier still came back: a deck of flip cards that a reader once turned over opened turned over on every visit.
+
 ## 0.5.1
 
 - Each sidebar circle sits on the middle of the first line of its page title. Its position comes from the title's own font size and line height, so it fits any theme.

@@ -7,15 +7,13 @@
  * book's config, and all of them are off unless the book turns them on:
  *   1. A "Mark this section as complete" checkbox at the foot of the page
  *      (persistence_page_checkbox).
- *   2. A tick in the left sidebar for every completed page
- *      (persistence_sidebar_ticks).
- *   3. A circle in the left sidebar next to every page, which the reader
- *      clicks to mark that page as done or not done
- *      (persistence_sidebar_clickable).
- *   4. A "Mark as done" checkbox below each explicitly classified Learning
+ *   2. A circle at the right edge of the left sidebar next to every page. It
+ *      shows a tick when the page is done, and the reader clicks it to mark
+ *      the page as done or not done (persistence_sidebar_ticks).
+ *   3. A "Mark as done" checkbox below each explicitly classified Learning
  *      Activity (persistence_activity_checkboxes).
- *   5. A "Reset" button below each Learning Activity (persistence_activity_reset).
- *   6. A "Mark as done" checkbox after numbered part headings on chosen pages
+ *   4. A "Reset" button below each Learning Activity (persistence_activity_reset).
+ *   5. A "Mark as done" checkbox after numbered part headings on chosen pages
  *      (persistence_part_heading_pages).
  *
  * These are ordinary <input type="checkbox"> elements with a STABLE, deterministic
@@ -84,9 +82,16 @@
         // Reflect checked state as a class on the label for styling, and keep the
         // sidebar map in sync. DataManager dispatches 'change' when it restores a
         // saved value, so this handler also runs on load, no separate restore path.
-        var sync = function () {
+        var sync = function (event) {
             label.classList.toggle('is-checked', box.checked);
-            if (id === PAGE_READ_ID) refreshSidebarTicks();
+            if (id === PAGE_READ_ID) {
+                // On a change, save the page state now: DataManager may save
+                // this box only after this handler runs, and the sidebar reads
+                // the saved value. The first call (no event) must not save,
+                // because the saved value has not been restored yet.
+                if (event) setPathComplete(window.location.pathname, box.checked);
+                refreshSidebarTicks();
+            }
         };
         box.addEventListener('change', sync);
         sync(); // set the initial (unchecked) styling immediately
@@ -367,14 +372,12 @@
     }
 
     /**
-     * Mirror per-page completion into the left sidebar: a ✓ appears next to any
-     * section link whose page the student has marked complete. With clickable
-     * ticks on, every page link gets a mark the reader can click to mark the
-     * page as done or not done, an empty circle until it is done.
+     * Mirror per-page completion into the left sidebar: every page link gets a
+     * circle at the right edge, filled with a tick when the page is done. The
+     * reader clicks the circle to mark the page as done or not done.
      */
     function refreshSidebarTicks() {
-        var clickable = option('sidebarClickable');
-        if (!option('sidebarTicks') && !clickable) return;
+        if (!option('sidebarTicks')) return;
         var links = document.querySelectorAll('.bd-sidebar-primary a.reference.internal, nav.bd-links a');
         links.forEach(function (a) {
             var pathname = linkPathname(a);
@@ -382,35 +385,24 @@
             var done = isPathComplete(pathname);
             a.classList.toggle('is-read', done);
             var mark = a.querySelector('.progress-tick');
-            if (!done && !clickable) {
-                if (mark) mark.remove();
-                a.classList.remove('has-progress-mark');
-                return;
-            }
             if (!mark) {
                 mark = document.createElement('span');
                 mark.className = 'progress-tick';
                 a.classList.add('has-progress-mark');
-                if (clickable) {
-                    mark.classList.add('progress-tick--clickable');
-                    mark.setAttribute('role', 'checkbox');
-                    mark.tabIndex = 0;
-                    mark.addEventListener('click', function (e) { toggleFromSidebar(e, pathname); });
-                    mark.addEventListener('keydown', function (e) {
-                        if (e.key === 'Enter' || e.key === ' ') toggleFromSidebar(e, pathname);
-                    });
-                } else {
-                    mark.setAttribute('aria-hidden', 'true');
-                }
+                mark.classList.add('progress-tick--clickable');
+                mark.setAttribute('role', 'checkbox');
+                mark.tabIndex = 0;
+                mark.addEventListener('click', function (e) { toggleFromSidebar(e, pathname); });
+                mark.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') toggleFromSidebar(e, pathname);
+                });
                 a.appendChild(mark);
             }
             mark.textContent = done ? '✓' : '';
             mark.classList.toggle('is-done', done);
-            if (clickable) {
-                mark.setAttribute('aria-checked', String(done));
-                mark.setAttribute('aria-label', done ? 'Marked as done. Click to undo.' : 'Mark this page as done');
-                mark.title = done ? 'Done. Click to undo.' : 'Mark as done';
-            }
+            mark.setAttribute('aria-checked', String(done));
+            mark.setAttribute('aria-label', done ? 'Marked as done. Click to undo.' : 'Mark this page as done');
+            mark.title = done ? 'Done. Click to undo.' : 'Mark as done';
         });
     }
 
@@ -441,7 +433,7 @@
             '.progress-reset:hover{border-color:var(--abm-primary,#00A6D6);color:var(--abm-primary-strong,#006BAE);background:var(--abm-panel,#EAF4FB);}',
             // Sidebar completion ticks
             '.progress-tick{color:var(--pst-color-primary,#006BAE);font-weight:700;margin-left:.35rem;}',
-            // Put every clickable mark in one column at the right edge of the sidebar.
+            // Put every sidebar circle in one column at the right edge of the sidebar.
             // Every mark (tick or circle) sits at the right edge, so the link's
             // underline does not run under it. The selector matches the theme's
             // nav.bd-links li > a so that its padding wins.

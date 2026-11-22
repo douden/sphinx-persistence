@@ -28,11 +28,9 @@ Progress controls added to the page:
 
 - ``persistence_page_checkbox`` (bool, False): a "Mark this section as
   complete" checkbox at the end of every page.
-- ``persistence_sidebar_ticks`` (bool, False): a tick in the left sidebar next
-  to every page marked complete. Works with ``persistence_page_checkbox``
-  or ``persistence_sidebar_clickable``.
-- ``persistence_sidebar_clickable`` (bool, False): a circle next to every page
-  in the left sidebar that the reader clicks to mark the page as done.
+- ``persistence_sidebar_ticks`` (bool, False): a circle at the right edge of
+  the left sidebar next to every page. It shows a tick when the page is done,
+  and the reader clicks it to mark the page as done or not done.
 - ``persistence_activity_checkboxes`` (bool, False): a "Mark as done" checkbox
   after every learning activity (``data-learning-activity="true"`` with a
   ``.la-title``, or a heading that starts with "Learning activity:").
@@ -54,7 +52,7 @@ Other settings:
 import json
 from pathlib import Path
 
-__version__ = "0.4.2"
+__version__ = "0.5.0"
 
 _STATIC = Path(__file__).resolve().parent / "static"
 
@@ -77,7 +75,6 @@ _MODULES = (
 _PROGRESS_OPTIONS = (
     "persistence_page_checkbox",
     "persistence_sidebar_ticks",
-    "persistence_sidebar_clickable",
     "persistence_activity_checkboxes",
     "persistence_activity_reset",
     "persistence_part_heading_pages",
@@ -108,7 +105,6 @@ def _on_builder_inited(app):
         "activityExcludeIds": list(config.persistence_activity_exclude_ids),
         "pageCheckbox": bool(config.persistence_page_checkbox),
         "sidebarTicks": bool(config.persistence_sidebar_ticks),
-        "sidebarClickable": bool(config.persistence_sidebar_clickable),
         "activityCheckboxes": bool(config.persistence_activity_checkboxes),
         "activityReset": bool(config.persistence_activity_reset),
         "partHeadingPages": config.persistence_part_heading_pages,
@@ -141,7 +137,6 @@ def setup(app):
     # Progress controls added to the page (off by default).
     app.add_config_value("persistence_page_checkbox", False, "html")
     app.add_config_value("persistence_sidebar_ticks", False, "html")
-    app.add_config_value("persistence_sidebar_clickable", False, "html")
     app.add_config_value("persistence_activity_checkboxes", False, "html")
     app.add_config_value("persistence_activity_reset", False, "html")
     app.add_config_value("persistence_part_heading_pages", "", "html")

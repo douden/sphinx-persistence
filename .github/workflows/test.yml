@@ -29,7 +29,6 @@ jobs:
           project = "demo"
           extensions = ["sphinx_persistence"]
           persistence_page_checkbox = True
-          persistence_sidebar_clickable = True
           persistence_sidebar_ticks = True
           persistence_activity_checkboxes = True
           persistence_activity_reset = True

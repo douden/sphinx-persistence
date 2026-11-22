@@ -28,7 +28,7 @@ For a plain Sphinx project without Jupyter Book, add `"sphinx_persistence"` to t
 
 The extension is not on PyPI yet. The line above installs the latest version from GitHub each time your book is built. To keep one version, add a commit id to the end of the line, for example `@a12f167` (version 0.4.1).
 
-With no further settings, the extension saves the reader's work and adds a menu with Export, Import and Reset to the page header. It adds nothing else to your pages. You can turn on the progress controls (checkboxes, ticks and clickable circles in the sidebar, and Reset buttons per activity) one by one, as [Settings](#settings) explains.
+With no further settings, the extension saves the reader's work and adds a menu with Export, Import and Reset to the page header. It adds nothing else to your pages. You can turn on the progress controls (checkboxes, circles in the sidebar, and Reset buttons per activity) one by one, as [Settings](#settings) explains.
 
 ## Saving the reader's work
 
@@ -96,17 +96,11 @@ With `persistence_page_checkbox: true`, every page ends with a "Mark this sectio
 
 ![Mark this section as complete checkbox](docs/mark-complete.png)
 
-### Ticks in the sidebar
+### Circles in the sidebar
 
-With `persistence_sidebar_ticks: true`, a tick appears at the right edge of the left sidebar next to every page the reader has marked complete. The reader can then see at a glance which pages they have finished. The ticks come from the page checkbox, so turn on `persistence_page_checkbox` as well, or use the clickable circles below.
+With `persistence_sidebar_ticks: true`, every page in the left sidebar gets a small circle at the right edge. The reader clicks the circle to mark that page as done, and the circle turns into a filled tick. Clicking it again undoes it, and the reader stays on the page they are reading. The reader can then see at a glance which pages they have finished. This works without the checkbox at the end of the page. When both are on, they stay in step, because they save the same value.
 
-![Tick next to a completed page in the sidebar](docs/sidebar-check.png)
-
-### Clickable circles in the sidebar
-
-With `persistence_sidebar_clickable: true`, every page in the left sidebar gets a small circle at the right edge. The reader clicks the circle to mark that page as done, and the circle turns into a filled tick. Clicking it again undoes it. The reader stays on the page they are reading. This works without the checkbox at the end of the page. When both are on, they stay in step, because they save the same value.
-
-![Clickable circles in the sidebar](docs/sidebar-clickable.png)
+![Circles in the sidebar, two pages marked as done](docs/sidebar-circles.png)
 
 ### "Mark as done" after each activity
 
@@ -161,7 +155,6 @@ sphinx:
   config:
     persistence_page_checkbox: true
     persistence_sidebar_ticks: true
-    persistence_sidebar_clickable: true
     persistence_activity_checkboxes: true
     persistence_activity_reset: true
 ```
@@ -176,8 +169,7 @@ The table lists every setting in the order of this README.
 | `persistence_activity_exclude_ids` | `[]` | Lists the ids of HTML activities that should never be saved, such as timed games. |
 | `persistence_toolbar` | `true` | Shows a menu with Export, Import and Reset behind a disk icon in the page header. |
 | `persistence_page_checkbox` | `false` | Adds a "Mark this section as complete" checkbox at the end of every page. |
-| `persistence_sidebar_ticks` | `false` | Shows a tick in the sidebar next to completed pages. Needs `persistence_page_checkbox` or `persistence_sidebar_clickable`. |
-| `persistence_sidebar_clickable` | `false` | Adds a circle next to every page in the sidebar. The reader clicks it to mark the page as done. |
+| `persistence_sidebar_ticks` | `false` | Adds a circle next to every page in the sidebar. The reader clicks it to mark the page as done, and it shows a tick when the page is done. |
 | `persistence_activity_checkboxes` | `false` | Adds a "Mark as done" checkbox after every learning activity. |
 | `persistence_activity_reset` | `false` | Adds a "Reset" button after every learning activity written in HTML. |
 | `persistence_part_heading_pages` | `""` | Adds a "Mark as done" checkbox after numbered part headings on pages whose address matches this pattern, for example `"chapter_3\|chapter_4"`. |

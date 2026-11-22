@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+
+- The sidebar has one kind of mark. `persistence_sidebar_ticks` now gives every page a circle at the right edge that the reader clicks to mark the page as done, and the circle shows a tick when the page is done. The setting `persistence_sidebar_clickable` is gone. A book that still sets it gets a harmless warning from Sphinx and can remove the line.
+- Ticking "Mark this section as complete" now fills the page's sidebar circle at once. Before, the circle changed only after a reload.
+
 ## 0.4.2
 
 - Code cleanup: two unused Reset methods removed from `book-exporter.js`; the docstring of the settings matches the README.

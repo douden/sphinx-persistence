@@ -447,6 +447,11 @@
             // nav.bd-links li > a so that its padding wins.
             'a.has-progress-mark,nav.bd-links li > a.has-progress-mark{position:relative;padding-right:1.9rem;}',
             'a.has-progress-mark .progress-tick{position:absolute;right:.45rem;top:.35rem;margin:0;width:1.05rem;text-align:center;}',
+            // A page with sub-pages keeps 33px on the right for its expand arrow.
+            // When the sidebar has such pages, move every other mark in by the
+            // same amount, so all marks form one straight column.
+            'nav.bd-links:has(li.has-children) li:not(.has-children) > a.has-progress-mark{padding-right:calc(1.9rem + 30px);}',
+            'nav.bd-links:has(li.has-children) li:not(.has-children) > a.has-progress-mark .progress-tick{right:calc(.45rem + 30px);}',
             '.progress-tick--clickable{display:inline-flex;align-items:center;justify-content:center;',
             '  width:1.05rem;height:1.05rem;border:1.5px solid var(--pst-color-border,#c4ccd4);border-radius:50%;',
             '  font-size:.7rem;line-height:1;vertical-align:middle;cursor:pointer;}',

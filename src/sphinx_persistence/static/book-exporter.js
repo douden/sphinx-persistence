@@ -47,7 +47,6 @@ class BookProgressManager {
             ['import-progress-btn', 'fa-file-import', 'Import progress', () => fileInput.click()],
             ['data-reset-btn', 'fa-trash-can', 'Reset progress', () => this.showResetDialog()],
         ], fileInput));
-        this.initTooltips(group);
     }
 
     /**
@@ -64,8 +63,6 @@ class BookProgressManager {
         toggle.setAttribute('aria-haspopup', 'true');
         toggle.setAttribute('aria-expanded', 'false');
         toggle.title = 'Your saved progress';
-        toggle.setAttribute('data-bs-toggle', 'tooltip');
-        toggle.setAttribute('data-bs-placement', 'bottom');
         toggle.innerHTML = '<span class="btn__icon-container"><i class="fa-solid fa-floppy-disk"></i></span>';
 
         const list = document.createElement('ul');
@@ -120,19 +117,6 @@ class BookProgressManager {
         else window.addEventListener('DOMContentLoaded', place);
     }
 
-    /** Best-effort Bootstrap tooltips (the theme ships Bootstrap); title is the fallback. */
-    initTooltips(group) {
-        const wire = () => {
-            if (!window.bootstrap || !window.bootstrap.Tooltip) return false;
-            group.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-                try { new window.bootstrap.Tooltip(el); } catch (e) { /* native title fallback */ }
-            });
-            return true;
-        };
-        // Bootstrap may load after us; if it isn't ready yet, retry once on load.
-        if (!wire()) window.addEventListener('load', wire, { once: true });
-    }
-
     /** Inject the small, scoped stylesheet for the button group (once). */
     injectStyles() {
         if (document.getElementById('progress-buttons-styles')) return;
@@ -146,8 +130,12 @@ class BookProgressManager {
                 opacity: 1; background: var(--pst-color-surface, rgba(128,128,128,0.15)); }
             .progress-buttons--menu { position: relative; }
             /* The theme shifts header menus 75% to the left; keep this one under its own button. */
-            .progress-buttons--menu .progress-menu { right: 0; left: auto; top: calc(100% - 2px);
+            .progress-buttons--menu .progress-menu { right: 0; left: auto; top: calc(100% - 4px);
                 transform: none; margin-top: 0; min-width: 11rem; }
+            /* Open on hover over the icon or the menu itself. The menu overlaps
+               the icon's box by a few pixels, so moving the mouse down from the
+               icon never crosses a gap that would close it. */
+            .progress-buttons--menu:hover > .progress-menu { display: block; }
             .progress-buttons--menu .progress-menu.show { display: block; }
             .progress-menu__item { display: flex; align-items: center; gap: 0.5rem; width: 100%;
                 text-align: left; border: none; background: transparent; color: inherit; }

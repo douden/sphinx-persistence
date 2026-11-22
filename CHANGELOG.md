@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- The menu stays open while the mouse moves from the disk icon down to the actions. The icon's tooltip, which covered the menu, is gone.
+- The sidebar marks form one straight column also in books with pages that have sub-pages (and an expand arrow).
+
 ## 0.4.0
 
 - Export, Import and Reset always sit in one menu behind a disk icon in the page header. The three separate header buttons and the setting `persistence_toolbar_menu` are gone. A book that still sets `persistence_toolbar_menu` gets a harmless warning from Sphinx and can remove the line.

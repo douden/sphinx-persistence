@@ -26,7 +26,7 @@ You need to add two lines and then rebuild your book.
 
 For a plain Sphinx project without Jupyter Book, add `"sphinx_persistence"` to the `extensions` list in `conf.py` instead.
 
-The extension is not on PyPI yet. The line above installs the latest version from GitHub each time your book is built. To keep one version, add a commit id to the end of the line, for example `@f2de164`.
+The extension is not on PyPI yet. The line above installs the latest version from GitHub each time your book is built. To keep one version, add a commit id to the end of the line, for example `@a12f167` (version 0.4.1).
 
 With no further settings, the extension saves the reader's work and adds a menu with Export, Import and Reset to the page header. It adds nothing else to your pages. You can turn on the progress controls (checkboxes, ticks and clickable circles in the sidebar, and Reset buttons per activity) one by one, as [Settings](#settings) explains.
 

@@ -2,7 +2,7 @@
 
 Auto-saves a reader's work (form inputs, quiz answers, live-code cell source,
 bespoke raw-HTML activities) to the browser's localStorage and restores it on
-reload, with an export / import / reset toolbar docked into the article
+reload, with Export, Import and Reset actions docked into the article
 header. Everything is client-side: no server, no accounts, no third-party
 services.
 
@@ -54,7 +54,7 @@ Other settings:
 import json
 from pathlib import Path
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 _STATIC = Path(__file__).resolve().parent / "static"
 

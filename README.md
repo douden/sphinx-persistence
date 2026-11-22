@@ -26,9 +26,9 @@ You need to add two lines and then rebuild your book.
 
 For a plain Sphinx project without Jupyter Book, add `"sphinx_persistence"` to the `extensions` list in `conf.py` instead.
 
-The extension is not on PyPI yet. The line above installs the latest version from GitHub each time your book is built. To keep one version, add a commit id to the end of the line, for example `@154e65a`.
+The extension is not on PyPI yet. The line above installs the latest version from GitHub each time your book is built. To keep one version, add a commit id to the end of the line, for example `@46ce63b`.
 
-With no further settings, the extension saves the reader's work and adds the Export, Import and Reset buttons to the page header. It adds nothing else to your pages. You can turn on the progress controls (checkboxes, sidebar ticks and Reset buttons per activity) one by one, as [Settings](#settings) explains.
+With no further settings, the extension saves the reader's work and adds the Export, Import and Reset buttons to the page header. It adds nothing else to your pages. You can turn on the progress controls (checkboxes, ticks and clickable circles in the sidebar, and Reset buttons per activity) one by one, as [Settings](#settings) explains.
 
 ## Saving the reader's work
 
@@ -70,11 +70,15 @@ An activity must sit inside an HTML element with an id, for example `<div id="so
 
 Turn it off with `persistence_activities: false`. To skip single activities, such as timed games, list their ids in `persistence_activity_exclude_ids`.
 
-## Export, Import and Reset buttons
+## Export, Import and Reset
 
-The extension adds three buttons to the page header, and they are on by default.
+The extension adds three actions to the page header, and they are on by default. Without further settings, they show as three icon buttons: Export (a file with an arrow out), Import (a file with an arrow in) and Reset (a bin).
 
-![Export, Import and Reset buttons in the page toolbar](docs/toolbar.png)
+![Export, Import and Reset buttons in the page header](docs/toolbar.png)
+
+With `persistence_toolbar_menu: true`, the three actions sit in one menu behind a single disk icon in the page header. Each action has its name in the menu. This keeps the header short, and readers can see what each action does.
+
+![The menu with Export, Import and Reset](docs/toolbar-menu.png)
 
 Saved work lives in one browser on one computer. Export and Import move it between computers. Export downloads one file with all saved work in the whole book, and Import loads such a file back in. A student can work in the university library, export the file and continue at home. The file also works as a backup in case the browser clears its storage.
 
@@ -82,11 +86,9 @@ The export file is a JSON file. It holds a format version (`schemaVersion`, now 
 
 Import checks the file first. If the file comes from a different book, the reader sees a warning before anything changes. Code edits that no longer match the current version of the book are skipped.
 
-The Reset button lets a reader start over. It asks whether to clear only the current page or the whole book. Then it deletes the saved work and reloads the page in its original state. It leaves other data of the website alone, with two exceptions on a shared web address that [Several books on one web address](#several-books-on-one-web-address) describes.
+Reset lets a reader start over. It asks whether to clear only the current page ("Current Page Only") or the whole book ("Entire Book"). Then it deletes the saved work and reloads the page in its original state. It leaves other data of the website alone, with two exceptions on a shared web address that [Several books on one web address](#several-books-on-one-web-address) describes.
 
-With `persistence_toolbar_menu: true`, the three actions sit in one menu behind a single button in the page header, each with its name. This keeps the header short, and readers can see what each action does.
-
-Turn all three buttons off with `persistence_toolbar: false`.
+Turn all three actions off with `persistence_toolbar: false`.
 
 ## Progress controls
 
@@ -100,13 +102,15 @@ With `persistence_page_checkbox: true`, every page ends with a "Mark this sectio
 
 ### Ticks in the sidebar
 
-With `persistence_sidebar_ticks: true`, a tick appears in the left sidebar next to every page the reader has marked complete. The reader can then see at a glance which pages they have finished. The ticks come from the page checkbox, so turn on `persistence_page_checkbox` as well.
+With `persistence_sidebar_ticks: true`, a tick appears at the right edge of the left sidebar next to every page the reader has marked complete. The reader can then see at a glance which pages they have finished. The ticks come from the page checkbox, so turn on `persistence_page_checkbox` as well, or use the clickable circles below.
 
 ![Tick next to a completed page in the sidebar](docs/sidebar-check.png)
 
-### Clickable marks in the sidebar
+### Clickable circles in the sidebar
 
-With `persistence_sidebar_clickable: true`, every page in the left sidebar gets a small circle. The reader clicks the circle to mark that page as done, and clicks it again to undo. This works without the checkbox at the end of the page. When both are on, they stay in step.
+With `persistence_sidebar_clickable: true`, every page in the left sidebar gets a small circle at the right edge. The reader clicks the circle to mark that page as done, and the circle turns into a filled tick. Clicking it again undoes it. The reader stays on the page they are reading. This works without the checkbox at the end of the page. When both are on, they stay in step, because they save the same value.
+
+![Clickable circles in the sidebar](docs/sidebar-clickable.png)
 
 ### "Mark as done" after each activity
 
@@ -134,7 +138,7 @@ Some pages are long walkthroughs with numbered parts, such as "3.1.1: Setting up
 A browser keeps saved work per web address, such as `https://oit.tudelft.nl`. When several books are hosted under the same address, they share one storage space, and the extension cannot yet tell them apart. This has three effects:
 
 - Export puts the saved work of all books on that address into one file.
-- "Reset book" deletes the saved work of all books on that address. It also deletes saved H5P answers on that address.
+- Reset with "Entire Book" deletes the saved work of all books on that address. It also deletes saved H5P answers on that address.
 - All books on the address share the browser's limit of about 5 MB.
 
 Pages do not mix, because the extension saves each page under its own path. A book that has its own web address, such as a GitHub Pages site, is not affected. A fix that keeps each book's saved work apart is planned.
@@ -146,21 +150,23 @@ Pages do not mix, because the extension saves each page under its own path. A bo
 
 ### Theme
 
-The extension is built for books that use the TeachBooks or sphinx-book-theme page layout. The Export, Import and Reset buttons go into that theme's page header. With another theme, the buttons float in the bottom-right corner of the page, and the progress controls do not appear.
+The extension is built for books that use the TeachBooks or sphinx-book-theme page layout. Export, Import and Reset go into that theme's page header. With another theme, they float in the bottom-right corner of the page, and the progress controls do not appear.
 
 ## Settings
 
 All settings are optional. In a Jupyter Book or TeachBooks book, put them in `_config.yml` under `sphinx:` and then `config:`, next to your other Sphinx settings. In a plain Sphinx project, put them in `conf.py`. Rebuild the book after you change a setting.
 
-This example turns on all progress controls:
+This example puts Export, Import and Reset in one menu and turns on all progress controls:
 
 ```yaml
 sphinx:
   extra_extensions:
     - sphinx_persistence
   config:
+    persistence_toolbar_menu: true
     persistence_page_checkbox: true
     persistence_sidebar_ticks: true
+    persistence_sidebar_clickable: true
     persistence_activity_checkboxes: true
     persistence_activity_reset: true
 ```
@@ -176,8 +182,8 @@ The table lists every setting in the order of this README.
 | `persistence_toolbar` | `true` | Shows the Export, Import and Reset buttons in the page header. |
 | `persistence_toolbar_menu` | `false` | Puts Export, Import and Reset in one menu behind a single button in the page header. |
 | `persistence_page_checkbox` | `false` | Adds a "Mark this section as complete" checkbox at the end of every page. |
-| `persistence_sidebar_ticks` | `false` | Shows a tick in the sidebar next to completed pages. Needs `persistence_page_checkbox`. |
-| `persistence_sidebar_clickable` | `false` | Adds a mark next to every page in the sidebar. The reader clicks it to mark the page as done. |
+| `persistence_sidebar_ticks` | `false` | Shows a tick in the sidebar next to completed pages. Needs `persistence_page_checkbox` or `persistence_sidebar_clickable`. |
+| `persistence_sidebar_clickable` | `false` | Adds a circle next to every page in the sidebar. The reader clicks it to mark the page as done. |
 | `persistence_activity_checkboxes` | `false` | Adds a "Mark as done" checkbox after every learning activity. |
 | `persistence_activity_reset` | `false` | Adds a "Reset" button after every learning activity written in HTML. |
 | `persistence_part_heading_pages` | `""` | Adds a "Mark as done" checkbox after numbered part headings on pages whose address matches this pattern, for example `"chapter_3\|chapter_4"`. |

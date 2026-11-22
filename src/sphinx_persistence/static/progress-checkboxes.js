@@ -9,18 +9,22 @@
  *      (persistence_page_checkbox).
  *   2. A tick in the left sidebar for every completed page
  *      (persistence_sidebar_ticks).
- *   3. A "Mark as done" checkbox below each explicitly classified Learning
+ *   3. A circle in the left sidebar next to every page, which the reader
+ *      clicks to mark that page as done or not done
+ *      (persistence_sidebar_clickable).
+ *   4. A "Mark as done" checkbox below each explicitly classified Learning
  *      Activity (persistence_activity_checkboxes).
- *   4. A "Reset" button below each Learning Activity (persistence_activity_reset).
- *   5. A "Mark as done" checkbox after numbered part headings on chosen pages
+ *   5. A "Reset" button below each Learning Activity (persistence_activity_reset).
+ *   6. A "Mark as done" checkbox after numbered part headings on chosen pages
  *      (persistence_part_heading_pages).
  *
  * These are ordinary <input type="checkbox"> elements with a STABLE, deterministic
  * id, so the existing DataManager (data-manager.js) picks them up automatically and
  * gives us persistence, Export, Import and Reset for free, this module writes no
  * storage of its own. It only creates the boxes, styles them, and mirrors the page's
- * completion state as a ✓ next to the matching link in the left sidebar, so a student
- * can see at a glance which sections they have finished across the whole book.
+ * completion state as a ✓ at the right edge of the matching link in the left sidebar,
+ * so a student can see at a glance which sections they have finished across the
+ * whole book. The sidebar circles write the same saved value as the page checkbox.
  */
 
 (function () {
@@ -380,14 +384,15 @@
             var mark = a.querySelector('.progress-tick');
             if (!done && !clickable) {
                 if (mark) mark.remove();
+                a.classList.remove('has-progress-mark');
                 return;
             }
             if (!mark) {
                 mark = document.createElement('span');
                 mark.className = 'progress-tick';
+                a.classList.add('has-progress-mark');
                 if (clickable) {
                     mark.classList.add('progress-tick--clickable');
-                    a.classList.add('has-progress-mark');
                     mark.setAttribute('role', 'checkbox');
                     mark.tabIndex = 0;
                     mark.addEventListener('click', function (e) { toggleFromSidebar(e, pathname); });
@@ -437,11 +442,11 @@
             // Sidebar completion ticks
             '.progress-tick{color:var(--pst-color-primary,#006BAE);font-weight:700;margin-left:.35rem;}',
             // Put every clickable mark in one column at the right edge of the sidebar.
-            // The mark is placed absolutely at the right edge, so the link's
+            // Every mark (tick or circle) sits at the right edge, so the link's
             // underline does not run under it. The selector matches the theme's
             // nav.bd-links li > a so that its padding wins.
             'a.has-progress-mark,nav.bd-links li > a.has-progress-mark{position:relative;padding-right:1.9rem;}',
-            'a.has-progress-mark .progress-tick--clickable{position:absolute;right:.45rem;top:.35rem;margin:0;}',
+            'a.has-progress-mark .progress-tick{position:absolute;right:.45rem;top:.35rem;margin:0;width:1.05rem;text-align:center;}',
             '.progress-tick--clickable{display:inline-flex;align-items:center;justify-content:center;',
             '  width:1.05rem;height:1.05rem;border:1.5px solid var(--pst-color-border,#c4ccd4);border-radius:50%;',
             '  font-size:.7rem;line-height:1;vertical-align:middle;cursor:pointer;}',

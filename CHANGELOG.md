@@ -1,12 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
 - New setting `persistence_toolbar_menu`: Export, Import and Reset in one menu behind a single header button (issue #3).
 - The Reset button has a bin icon (issue #4).
 - New setting `persistence_sidebar_clickable`: readers click a mark next to a page in the sidebar to mark it as done (issue #5).
 - The sidebar now shows the tick for the page the reader is on (issues #1 and #8).
 - A ticked checkbox is readable in dark mode (issue #2).
+- With `persistence_sidebar_ticks` alone, the ticks also sit in one column at the right edge of the sidebar.
 - The GitHub test runs on Python 3.10 and 3.12 and uses the current settings.
 
 ## 0.2.0

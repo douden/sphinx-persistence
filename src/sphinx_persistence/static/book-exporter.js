@@ -1,6 +1,9 @@
 /**
- * Simple Book Progress Exporter/Importer
- * Exports and imports all saved data as downloadable/uploadable JSON files
+ * Export, Import and Reset
+ * Adds three actions to the page header: Export downloads all saved work as
+ * one JSON file, Import loads such a file back in, and Reset clears saved work
+ * for the current page or the whole book. They show as three icon buttons, or,
+ * with persistence_toolbar_menu, as one menu behind a single header button.
  */
 
 class BookProgressManager {
@@ -410,7 +413,7 @@ class BookProgressManager {
             <div style="margin: 20px 0;">
                 <button onclick="if(window.dataManager) { window.dataManager.resetCurrentPage(); } this.closest('.reset-dialog').remove(); document.querySelector('.reset-backdrop')?.remove();" 
                         style="background: var(--abm-hint,#A63D18); color: #fff; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-weight: 500;">
-                    🔄 Current Page Only
+                    📄 Current Page Only
                 </button>
             </div>
             <div style="margin: 20px 0;">

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- Each sidebar circle sits on the middle of the first line of its page title. Its position comes from the title's own font size and line height, so it fits any theme.
+
 ## 0.5.0
 
 - The sidebar has one kind of mark. `persistence_sidebar_ticks` now gives every page a circle at the right edge that the reader clicks to mark the page as done, and the circle shows a tick when the page is done. The setting `persistence_sidebar_clickable` is gone. A book that still sets it gets a harmless warning from Sphinx and can remove the line.

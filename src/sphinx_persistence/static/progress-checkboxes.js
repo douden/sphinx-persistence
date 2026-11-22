@@ -372,6 +372,28 @@
     }
 
     /**
+     * Centre a sidebar circle on the first line of its page title. The link's
+     * own padding, line height and font size give the position, so the circle
+     * lines up in any theme. A small extra offset (0.04 of the font size)
+     * matches the visual middle of the letters, which sits slightly below the
+     * middle of the line box.
+     */
+    function alignMark(a, mark) {
+        try {
+            var cs = window.getComputedStyle(a);
+            var fontSize = parseFloat(cs.fontSize) || 16;
+            var lineHeight = parseFloat(cs.lineHeight);
+            if (!lineHeight) lineHeight = fontSize * 1.2; // 'normal'
+            var padTop = parseFloat(cs.paddingTop) || 0;
+            // The circle is 1.05rem high; offsetHeight is 0 while the sidebar is
+            // hidden (phone menu closed), so fall back to the rem size.
+            var rem = parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+            var size = mark.offsetHeight || rem * 1.05;
+            mark.style.top = (padTop + (lineHeight - size) / 2 + fontSize * 0.04) + 'px';
+        } catch (e) { /* keep the stylesheet position */ }
+    }
+
+    /**
      * Mirror per-page completion into the left sidebar: every page link gets a
      * circle at the right edge, filled with a tick when the page is done. The
      * reader clicks the circle to mark the page as done or not done.
@@ -398,6 +420,7 @@
                 });
                 a.appendChild(mark);
             }
+            alignMark(a, mark);
             mark.textContent = done ? '✓' : '';
             mark.classList.toggle('is-done', done);
             mark.setAttribute('aria-checked', String(done));

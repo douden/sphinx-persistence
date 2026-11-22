@@ -115,6 +115,9 @@ class ThebeCodePersistence {
     captureOriginHashes() {
         this.originHashes = new Map();
         this.getCodeCells().forEach((container, index) => {
+            // Mark every published cell with its place, so a cell the reader
+            // adds later (Live Code "add cell") can never take a published key.
+            container.dataset.persistIndex = String(index);
             if (this.shouldSkip(container)) return;
             const pre = container.querySelector('.cell_input pre') || container.querySelector('pre');
             if (pre) this.originHashes.set(index, this.hashSource(this.normalizeSource(pre.textContent)));
@@ -193,6 +196,14 @@ class ThebeCodePersistence {
 
     /** Derive the positional index, preferring the `codecell{N}` id thebe sets. */
     indexOfContainer(container) {
+        // Published cells carry the index recorded at load. A cell without it
+        // was added by the reader: thebe numbers it among the published cells,
+        // so its position would point at the next published cell's key. Such
+        // cells are temporary and are never saved.
+        if (container.dataset && container.dataset.persistIndex !== undefined) {
+            return parseInt(container.dataset.persistIndex, 10);
+        }
+        if (this.staticCellCount > 0) return -1;
         const m = /^codecell(\d+)$/.exec(container.id || '');
         if (m) return parseInt(m[1], 10);
         return this.getCodeCells().indexOf(container);

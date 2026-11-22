@@ -140,7 +140,7 @@
         btn.setAttribute('aria-label', 'Reset this activity');
         btn.title = 'Clear your saved answers for this activity and start over';
         btn.addEventListener('click', function () {
-            if (!window.confirm('Reset this activity? Your saved progress for it will be cleared.')) return;
+            if (!window.confirm('Clear your saved answers for this activity? Your "Mark as done" tick is kept.')) return;
             var base = STORAGE_PREFIX + window.location.pathname;
             var dm = window.dataManager;
             // Stop pending saves so none writes a value back after the clear.

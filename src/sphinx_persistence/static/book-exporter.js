@@ -138,6 +138,11 @@ class BookProgressManager {
 
     exportProgress() {
         try {
+            // Write any input still waiting for its delayed save first.
+            if (window.dataManager && window.dataManager.flushPendingSaves) {
+                window.dataManager.flushPendingSaves();
+            }
+
             // Collect all saved form data (abm_book_*).
             const allData = {};
             const storagePrefix = 'abm_book_';

@@ -4,7 +4,7 @@ This extension saves your readers' work in a Jupyter Book, TeachBooks or Sphinx 
 
 Without it, everything a reader does in an interactive book is lost when they refresh or close the page. This includes quiz answers, code they edited and exercises they filled in. With this extension, all of it comes back when the reader returns, even days later. The extension stores everything in the reader's own browser. There is no server and no account, and no data leaves the reader's computer.
 
-You can try every feature in the [example book](https://omarkammouh.github.io/sphinx-persistence-example/). Its source is in the [sphinx-persistence-example](https://github.com/omarkammouh/sphinx-persistence-example) repository.
+You can try every feature in the [example book](https://omarkammouh.github.io/sphinx-persistence-example/main/). Its source is in the [sphinx-persistence-example](https://github.com/omarkammouh/sphinx-persistence-example) repository.
 
 ## Installation
 

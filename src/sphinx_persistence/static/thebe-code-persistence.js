@@ -32,7 +32,7 @@
  * cell's *pristine* source captured at load. On restore we only inject the saved
  * code when `origin` still matches the current pristine source, so if the author
  * later inserts/reorders/edits cells (a book update), a stale entry is skipped
- * rather than injected into the wrong cell. Legacy raw-string values (no envelope)
+ * and not injected into the wrong cell. Legacy raw-string values (no envelope)
  * restore as-is with origin unknown, and upgrade to an envelope on the next save.
  *
  * OUT OF SCOPE: kernel-side interactive state, ipywidgets sliders/buttons, Mesa

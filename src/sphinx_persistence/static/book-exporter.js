@@ -250,7 +250,7 @@ class BookProgressManager {
                     }
                     if (key.startsWith('thebe_code_')) {
                         // If the entry targets a cell on THIS page whose source has
-                        // changed since export, skip it rather than restore stale
+                        // changed since export, skip it and do not restore stale
                         // code into the wrong cell. Other pages are validated lazily
                         // by the per-page restore guard on next visit.
                         if (window.thebeCodePersistence &&
@@ -398,24 +398,6 @@ class BookProgressManager {
             backdrop.remove();
         };
         document.body.appendChild(backdrop);
-    }
-
-    resetCurrentPage() {
-        if (window.dataManager) {
-            window.dataManager.resetCurrentPage();
-            this.showNotification('Current page reset successfully!');
-        } else {
-            this.showNotification('Reset failed: Data manager not available', 'error');
-        }
-    }
-
-    resetEntireBook() {
-        if (window.dataManager) {
-            window.dataManager.resetEntireBook();
-            this.showNotification('Entire book reset successfully!');
-        } else {
-            this.showNotification('Reset failed: Data manager not available', 'error');
-        }
     }
 }
 

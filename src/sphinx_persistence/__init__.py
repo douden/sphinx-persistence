@@ -29,8 +29,9 @@ Progress controls added to the page:
 - ``persistence_page_checkbox`` (bool, False): a "Mark this section as
   complete" checkbox at the end of every page.
 - ``persistence_sidebar_ticks`` (bool, False): a tick in the left sidebar next
-  to every page marked complete. Needs ``persistence_page_checkbox``.
-- ``persistence_sidebar_clickable`` (bool, False): a mark next to every page
+  to every page marked complete. Works with ``persistence_page_checkbox``
+  or ``persistence_sidebar_clickable``.
+- ``persistence_sidebar_clickable`` (bool, False): a circle next to every page
   in the left sidebar that the reader clicks to mark the page as done.
 - ``persistence_activity_checkboxes`` (bool, False): a "Mark as done" checkbox
   after every learning activity (``data-learning-activity="true"`` with a
@@ -38,7 +39,7 @@ Progress controls added to the page:
 - ``persistence_activity_reset`` (bool, False): a "Reset" button after every
   learning activity that clears only that activity.
 - ``persistence_part_heading_pages`` (str, ""): JS regex matched against
-  ``location.pathname``; on matching pages, numbered part headings
+  ``location.pathname``; on matching pages, numbered second-level (h2) part headings
   ("3.1.1: ...") also receive a "Mark as done" checkbox. Empty means off.
 
 Other settings:
@@ -53,7 +54,7 @@ Other settings:
 import json
 from pathlib import Path
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 _STATIC = Path(__file__).resolve().parent / "static"
 

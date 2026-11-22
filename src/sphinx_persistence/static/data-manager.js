@@ -53,7 +53,7 @@ class DataManager {
     getStorageKey(element) {
         const pageUrl = window.location.pathname;
         // Radio groups are keyed by their shared `name`, not per-element. The
-        // store then holds the single *selected value* rather than a per-radio
+        // store then holds the single *selected value*, not a per-radio
         // boolean, deselecting a radio fires no event, so the old per-radio
         // scheme left several radios "checked" after a reload.
         if (element.type === 'radio' && element.name) {
@@ -162,7 +162,7 @@ class DataManager {
     }
 
     /**
-     * True for inputs that are theme/UI chrome rather than reader work.
+     * True for inputs that are theme/UI chrome and not reader work.
      * sphinx-design tab-sets keep their selection in hidden radio inputs;
      * persisting those would restore "last tab viewed", and tab open-state is
      * deliberately transient (see README, "Not persisted").

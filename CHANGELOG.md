@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+- Code cleanup: two unused Reset methods removed from `book-exporter.js`; the docstring of the settings matches the README.
+
 ## 0.4.1
 
 - The menu stays open while the mouse moves from the disk icon down to the actions. The icon's tooltip, which covered the menu, is gone.

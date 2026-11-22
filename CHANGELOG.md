@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- New setting `persistence_toolbar_menu`: Export, Import and Reset in one menu behind a single header button (issue #3).
+- The Reset button has a bin icon (issue #4).
+- New setting `persistence_sidebar_clickable`: readers click a mark next to a page in the sidebar to mark it as done (issue #5).
+- The sidebar now shows the tick for the page the reader is on (issues #1 and #8).
+- A ticked checkbox is readable in dark mode (issue #2).
+- The GitHub test runs on Python 3.10 and 3.12 and uses the current settings.
+
 ## 0.2.0
 
 Each progress control now has its own setting, and all of them are off by default. Saving and the Export, Import and Reset buttons stay on by default.

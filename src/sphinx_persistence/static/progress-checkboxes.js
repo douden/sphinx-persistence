@@ -319,34 +319,92 @@
         }
     }
 
+    /** Save a page's "complete" flag in the same form DataManager uses. */
+    function setPathComplete(pathname, done) {
+        try {
+            localStorage.setItem(STORAGE_PREFIX + pathname + '_' + PAGE_READ_ID, JSON.stringify({
+                value: done, timestamp: Date.now(), url: pathname
+            }));
+        } catch (e) { /* storage full or blocked: leave the state as it was */ }
+    }
+
+    /**
+     * The page a sidebar link points to. The theme gives the link to the page
+     * you are on the address "#", so that link means the current page.
+     */
+    function linkPathname(a) {
+        var href = a.getAttribute('href');
+        if (!href) return null;
+        if (href === '#' || (href.charAt(0) === '#' && a.classList.contains('current'))) {
+            return window.location.pathname;
+        }
+        if (href.charAt(0) === '#') return null;
+        try {
+            return new URL(href, window.location.href).pathname;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /** Click on a sidebar mark: switch that page between done and not done. */
+    function toggleFromSidebar(event, pathname) {
+        event.preventDefault();
+        event.stopPropagation();
+        var done = !isPathComplete(pathname);
+        var box = document.getElementById(PAGE_READ_ID);
+        if (pathname === window.location.pathname && box) {
+            // Keep the checkbox at the end of the page in step; its change
+            // event saves the value through DataManager.
+            box.checked = done;
+            box.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        setPathComplete(pathname, done);
+        refreshSidebarTicks();
+    }
+
     /**
      * Mirror per-page completion into the left sidebar: a ✓ appears next to any
-     * section link whose page the student has marked complete. Best-effort, any
-     * link we cannot resolve is simply skipped.
+     * section link whose page the student has marked complete. With clickable
+     * ticks on, every page link gets a mark the reader can click to mark the
+     * page as done or not done, an empty circle until it is done.
      */
     function refreshSidebarTicks() {
-        if (!option('sidebarTicks')) return;
+        var clickable = option('sidebarClickable');
+        if (!option('sidebarTicks') && !clickable) return;
         var links = document.querySelectorAll('.bd-sidebar-primary a.reference.internal, nav.bd-links a');
         links.forEach(function (a) {
-            var href = a.getAttribute('href');
-            if (!href || href.charAt(0) === '#') return;
-            var pathname;
-            try {
-                pathname = new URL(href, window.location.href).pathname;
-            } catch (e) {
-                return;
-            }
+            var pathname = linkPathname(a);
+            if (!pathname) return;
             var done = isPathComplete(pathname);
             a.classList.toggle('is-read', done);
             var mark = a.querySelector('.progress-tick');
-            if (done && !mark) {
+            if (!done && !clickable) {
+                if (mark) mark.remove();
+                return;
+            }
+            if (!mark) {
                 mark = document.createElement('span');
                 mark.className = 'progress-tick';
-                mark.setAttribute('aria-hidden', 'true');
-                mark.textContent = '✓';
+                if (clickable) {
+                    mark.classList.add('progress-tick--clickable');
+                    a.classList.add('has-progress-mark');
+                    mark.setAttribute('role', 'checkbox');
+                    mark.tabIndex = 0;
+                    mark.addEventListener('click', function (e) { toggleFromSidebar(e, pathname); });
+                    mark.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter' || e.key === ' ') toggleFromSidebar(e, pathname);
+                    });
+                } else {
+                    mark.setAttribute('aria-hidden', 'true');
+                }
                 a.appendChild(mark);
-            } else if (!done && mark) {
-                mark.remove();
+            }
+            mark.textContent = done ? '✓' : '';
+            mark.classList.toggle('is-done', done);
+            if (clickable) {
+                mark.setAttribute('aria-checked', String(done));
+                mark.setAttribute('aria-label', done ? 'Marked as done. Click to undo.' : 'Mark this page as done');
+                mark.title = done ? 'Done. Click to undo.' : 'Mark as done';
             }
         });
     }
@@ -377,7 +435,19 @@
             '  font-family:var(--abm-font,inherit);transition:background .15s,border-color .15s,color .15s;}',
             '.progress-reset:hover{border-color:var(--abm-primary,#00A6D6);color:var(--abm-primary-strong,#006BAE);background:var(--abm-panel,#EAF4FB);}',
             // Sidebar completion ticks
-            '.progress-tick{color:var(--abm-primary-strong,#006BAE);font-weight:700;margin-left:.35rem;}',
+            '.progress-tick{color:var(--pst-color-primary,#006BAE);font-weight:700;margin-left:.35rem;}',
+            // Put every clickable mark in one column at the right edge of the sidebar.
+            // The mark is placed absolutely at the right edge, so the link's
+            // underline does not run under it. The selector matches the theme's
+            // nav.bd-links li > a so that its padding wins.
+            'a.has-progress-mark,nav.bd-links li > a.has-progress-mark{position:relative;padding-right:1.9rem;}',
+            'a.has-progress-mark .progress-tick--clickable{position:absolute;right:.45rem;top:.35rem;margin:0;}',
+            '.progress-tick--clickable{display:inline-flex;align-items:center;justify-content:center;',
+            '  width:1.05rem;height:1.05rem;border:1.5px solid var(--pst-color-border,#c4ccd4);border-radius:50%;',
+            '  font-size:.7rem;line-height:1;vertical-align:middle;cursor:pointer;}',
+            '.progress-tick--clickable:hover,.progress-tick--clickable:focus{border-color:var(--pst-color-primary,#006BAE);outline:none;}',
+            '.progress-tick--clickable.is-done{border-color:var(--pst-color-primary,#006BAE);background:var(--pst-color-primary,#006BAE);color:var(--pst-color-background,#fff);}',
+            'html[data-theme=dark] .progress-check.is-checked{color:var(--pst-color-text-base,#eee);}',
             'a.reference.internal.is-read{opacity:.95;}'
         ].join('');
         (document.head || document.documentElement).appendChild(style);

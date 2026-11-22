@@ -45,8 +45,22 @@ class BookProgressManager {
             'import-progress-btn', 'fa-file-import', 'Import progress from a file',
             () => fileInput.click());
         const resetButton = this.makeIconButton(
-            'data-reset-btn', 'fa-arrows-rotate', 'Reset your saved progress',
+            'data-reset-btn', 'fa-trash-can', 'Reset your saved progress',
             () => this.showResetDialog());
+
+        const cfg = window.sphinxPersistence || {};
+        if (cfg.toolbarMenu === true) {
+            // One header button that opens a menu with the three actions, each
+            // with a text label, so the header stays short and readers can see
+            // what each action does.
+            this.injectStyles();
+            this.dockButtons(this.makeMenu(group, [
+                ['export-progress-btn', 'fa-file-export', 'Export progress', () => this.exportProgress()],
+                ['import-progress-btn', 'fa-file-import', 'Import progress', () => fileInput.click()],
+                ['data-reset-btn', 'fa-trash-can', 'Reset progress', () => this.showResetDialog()],
+            ], fileInput));
+            return;
+        }
 
         group.appendChild(exportButton);
         group.appendChild(importButton);
@@ -56,6 +70,57 @@ class BookProgressManager {
         this.injectStyles();
         this.dockButtons(group);
         this.initTooltips(group);
+    }
+
+    /**
+     * The menu form of the toolbar: one icon button that opens a list of the
+     * actions. It uses the same markup as the theme's own download menu, so it
+     * looks the same, and opens and closes on click without Bootstrap.
+     */
+    makeMenu(group, items, fileInput) {
+        group.classList.add('dropdown', 'progress-buttons--menu');
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.id = 'progress-menu-btn';
+        toggle.className = 'btn btn-sm dropdown-toggle progress-buttons__btn';
+        toggle.setAttribute('aria-label', 'Your saved progress');
+        toggle.setAttribute('aria-haspopup', 'true');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.title = 'Your saved progress';
+        toggle.innerHTML = '<span class="btn__icon-container"><i class="fa-solid fa-floppy-disk"></i></span>';
+
+        const list = document.createElement('ul');
+        list.className = 'dropdown-menu progress-menu';
+        items.forEach(([id, icon, text, onClick]) => {
+            const li = document.createElement('li');
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.id = id;
+            item.className = 'btn btn-sm dropdown-item progress-menu__item';
+            item.innerHTML = `<span class="btn__icon-container"><i class="fa-solid ${icon}"></i></span>` +
+                `<span class="btn__text-container">${text}</span>`;
+            item.addEventListener('click', () => { close(); onClick(); });
+            li.appendChild(item);
+            list.appendChild(li);
+        });
+
+        const close = () => {
+            list.classList.remove('show');
+            toggle.setAttribute('aria-expanded', 'false');
+        };
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = !list.classList.contains('show');
+            list.classList.toggle('show', open);
+            toggle.setAttribute('aria-expanded', String(open));
+        });
+        document.addEventListener('click', (e) => { if (!group.contains(e.target)) close(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+        group.appendChild(toggle);
+        group.appendChild(list);
+        group.appendChild(fileInput);
+        return group;
     }
 
     /** A theme-styled icon-only button (monochrome, inherits header button look). */
@@ -115,6 +180,14 @@ class BookProgressManager {
                 box-shadow: none; padding: 0.25rem 0.4rem; line-height: 1; opacity: 0.85; }
             .progress-buttons__btn:hover, .progress-buttons__btn:focus {
                 opacity: 1; background: var(--pst-color-surface, rgba(128,128,128,0.15)); }
+            .progress-buttons--menu { position: relative; }
+            /* The theme shifts header menus 75% to the left; keep this one under its own button. */
+            .progress-buttons--menu .progress-menu { right: 0; left: auto; top: calc(100% - 2px);
+                transform: none; margin-top: 0; min-width: 11rem; }
+            .progress-buttons--menu .progress-menu.show { display: block; }
+            .progress-menu__item { display: flex; align-items: center; gap: 0.5rem; width: 100%;
+                text-align: left; border: none; background: transparent; color: inherit; }
+            .progress-buttons--floating .progress-menu { bottom: 100%; top: auto; }
             .progress-buttons--floating { position: fixed; bottom: 16px; right: 16px;
                 z-index: 1030; gap: 0.25rem; padding: 0.25rem 0.4rem; border-radius: 8px;
                 background: var(--pst-color-surface, #fff);

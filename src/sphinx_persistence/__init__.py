@@ -22,6 +22,8 @@ Saving:
 Header toolbar:
 
 - ``persistence_toolbar`` (bool, True): the export / import / reset buttons.
+- ``persistence_toolbar_menu`` (bool, False): show the three actions in one
+  menu behind a single header button.
 
 Progress controls added to the page:
 
@@ -29,6 +31,8 @@ Progress controls added to the page:
   complete" checkbox at the end of every page.
 - ``persistence_sidebar_ticks`` (bool, False): a tick in the left sidebar next
   to every page marked complete. Needs ``persistence_page_checkbox``.
+- ``persistence_sidebar_clickable`` (bool, False): a mark next to every page
+  in the left sidebar that the reader clicks to mark the page as done.
 - ``persistence_activity_checkboxes`` (bool, False): a "Mark as done" checkbox
   after every learning activity (``data-learning-activity="true"`` with a
   ``.la-title``, or a heading that starts with "Learning activity:").
@@ -73,6 +77,7 @@ _MODULES = (
 _PROGRESS_OPTIONS = (
     "persistence_page_checkbox",
     "persistence_sidebar_ticks",
+    "persistence_sidebar_clickable",
     "persistence_activity_checkboxes",
     "persistence_activity_reset",
     "persistence_part_heading_pages",
@@ -101,8 +106,10 @@ def _on_builder_inited(app):
     runtime = {
         "bookId": config.persistence_book_id,
         "activityExcludeIds": list(config.persistence_activity_exclude_ids),
+        "toolbarMenu": bool(config.persistence_toolbar_menu),
         "pageCheckbox": bool(config.persistence_page_checkbox),
         "sidebarTicks": bool(config.persistence_sidebar_ticks),
+        "sidebarClickable": bool(config.persistence_sidebar_clickable),
         "activityCheckboxes": bool(config.persistence_activity_checkboxes),
         "activityReset": bool(config.persistence_activity_reset),
         "partHeadingPages": config.persistence_part_heading_pages,
@@ -132,9 +139,11 @@ def setup(app):
     app.add_config_value("persistence_activities", True, "html")
     # Header toolbar (on by default).
     app.add_config_value("persistence_toolbar", True, "html")
+    app.add_config_value("persistence_toolbar_menu", False, "html")
     # Progress controls added to the page (off by default).
     app.add_config_value("persistence_page_checkbox", False, "html")
     app.add_config_value("persistence_sidebar_ticks", False, "html")
+    app.add_config_value("persistence_sidebar_clickable", False, "html")
     app.add_config_value("persistence_activity_checkboxes", False, "html")
     app.add_config_value("persistence_activity_reset", False, "html")
     app.add_config_value("persistence_part_heading_pages", "", "html")

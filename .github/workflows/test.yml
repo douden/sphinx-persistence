@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,7 +28,12 @@ jobs:
           cat > demo/conf.py <<'EOF'
           project = "demo"
           extensions = ["sphinx_persistence"]
-          persistence_progress_checkboxes = True
+          persistence_toolbar_menu = True
+          persistence_page_checkbox = True
+          persistence_sidebar_clickable = True
+          persistence_sidebar_ticks = True
+          persistence_activity_checkboxes = True
+          persistence_activity_reset = True
           persistence_part_heading_pages = "part_"
           persistence_activity_exclude_ids = ["skip-me"]
           persistence_book_id = "demo-book"

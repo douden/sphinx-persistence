@@ -2,7 +2,7 @@ name: Publish to PyPI
 
 # Runs when a GitHub Release is published (e.g. tag v0.1.0).
 # Uses PyPI "trusted publishing": no tokens or secrets are stored anywhere.
-# One-time setup on pypi.org is described in PUBLISHING.md.
+# Needs a one-time trusted-publisher setup for this repository on pypi.org.
 
 on:
   release:

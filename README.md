@@ -84,6 +84,8 @@ Import checks the file first. If the file comes from a different book, the reade
 
 The Reset button lets a reader start over. It asks whether to clear only the current page or the whole book. Then it deletes the saved work and reloads the page in its original state. It leaves other data of the website alone, with two exceptions on a shared web address that [Several books on one web address](#several-books-on-one-web-address) describes.
 
+With `persistence_toolbar_menu: true`, the three actions sit in one menu behind a single button in the page header, each with its name. This keeps the header short, and readers can see what each action does.
+
 Turn all three buttons off with `persistence_toolbar: false`.
 
 ## Progress controls
@@ -101,6 +103,10 @@ With `persistence_page_checkbox: true`, every page ends with a "Mark this sectio
 With `persistence_sidebar_ticks: true`, a tick appears in the left sidebar next to every page the reader has marked complete. The reader can then see at a glance which pages they have finished. The ticks come from the page checkbox, so turn on `persistence_page_checkbox` as well.
 
 ![Tick next to a completed page in the sidebar](docs/sidebar-check.png)
+
+### Clickable marks in the sidebar
+
+With `persistence_sidebar_clickable: true`, every page in the left sidebar gets a small circle. The reader clicks the circle to mark that page as done, and clicks it again to undo. This works without the checkbox at the end of the page. When both are on, they stay in step.
 
 ### "Mark as done" after each activity
 
@@ -168,8 +174,10 @@ The table lists every setting in the order of this README.
 | `persistence_activities` | `true` | Saves custom HTML activities. |
 | `persistence_activity_exclude_ids` | `[]` | Lists the ids of HTML activities that should never be saved, such as timed games. |
 | `persistence_toolbar` | `true` | Shows the Export, Import and Reset buttons in the page header. |
+| `persistence_toolbar_menu` | `false` | Puts Export, Import and Reset in one menu behind a single button in the page header. |
 | `persistence_page_checkbox` | `false` | Adds a "Mark this section as complete" checkbox at the end of every page. |
 | `persistence_sidebar_ticks` | `false` | Shows a tick in the sidebar next to completed pages. Needs `persistence_page_checkbox`. |
+| `persistence_sidebar_clickable` | `false` | Adds a mark next to every page in the sidebar. The reader clicks it to mark the page as done. |
 | `persistence_activity_checkboxes` | `false` | Adds a "Mark as done" checkbox after every learning activity. |
 | `persistence_activity_reset` | `false` | Adds a "Reset" button after every learning activity written in HTML. |
 | `persistence_part_heading_pages` | `""` | Adds a "Mark as done" checkbox after numbered part headings on pages whose address matches this pattern, for example `"chapter_3\|chapter_4"`. |
